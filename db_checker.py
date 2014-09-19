@@ -15,6 +15,8 @@ import re
 EGU_list = {'ai', 'ao', 'calc', 'calcout', 'compress', 'dfanout', 'longin', 'longout', 'mbbo', 'mbboDirect', 'permissive',\
     'sel', 'seq', 'state', 'stringin', 'stringout', 'subArray', 'sub', 'waveform', 'archive', 'cpid', 'pid', 'steppermotor'}
 
+EGU_sub_list = {'longin', 'longout' 'ai', 'ao'}
+
 #list of the accepted units
 allowed_units = {'A', 'angstrom', 'bar', 'bit', 'byte', 'C', 'count', 'degree', 'eV', 'hour', 'Hz', 'inch', \
               'interrupt', 'K', 'L', 'm', 'minute', 'ohm', '%', 'photon', 'pixel', 'radian', 's', 'torr', 'step', 'V'}
@@ -23,54 +25,42 @@ recs = []
 
 class TestPVUnits(unittest.TestCase):
 
-    def dont_test_units_exist(self):
+    def test_interest_units(self):
         """
-        This method looks through the EPICS dbs and checks whether they require EGU fields and notes if those fields are blank
-        or if there are multiple units. The test is failed if any important PVs lack fields and a warning is written to
-        console for missing units on other PVs.
+        This method checks that interesting fields have units
         """
+        err = 0
 
-        no_EGU      = []
-        blank_EGU   = []
-        multi_EGU   = []
-        imp_noEGU   = []
-        RBV_noEGU   = []
-
-        for rec in self.recs:
+        for rec in recs:
             rec_type = rec.getType()
 
-            #check if record type should have EGU and is not a simulation or disable
-            if (rec_type in EGU_list) and not (rec.isSim()) and not (rec.isDisable()):
+            if rec.isInterest() and not rec.isDisable() and (rec_type in EGU_sub_list):
                 unit = rec.getField("EGU")
-                if len(unit) == 0:
-                    #check for no units
-                    if rec.isInterest():
-                        imp_noEGU.append(rec)
-                    elif rec.isReadback():
-                        RBV_noEGU.append(rec)
-                    no_EGU.append(rec)
-                elif unit[0] == "":
-                    #check for blank units
-                    if rec.isInterest():
-                        imp_noEGU.append(rec)
-                    elif rec.isReadback():
-                        RBV_noEGU.append(rec)
-                    blank_EGU.append(rec)
-                elif len(unit) != 1:
-                    #check for multiple units
-                    multi_EGU.append(rec)
 
-        print "Warning: Number of PVs missing EGU field: " + str(len(no_EGU))
-        print "Warning: Number of PVs with blank units: " + str(len(blank_EGU))
-        print "Warning: Number of PVs with multiple units: " + str(len(multi_EGU))
-        if len(imp_noEGU) > 0:
-            for bad in imp_noEGU:
-                print str(bad)
-            self.assertEqual(imp_noEGU, 0, msg = "ERROR: Number of interesting PVs with invalid units: " + str(len(imp_noEGU)))
-        if len(RBV_noEGU) > 0:
-            #for bad in RBV_noEGU:
-            #    print str(bad)
-            self.assertEqual(RBV_noEGU, 0, msg = "ERROR: Number of RBVs with invalid units: " + str(len(RBV_noEGU)))
+                if len(unit) == 0 or unit == "":
+                    err += 1
+                    print "Missing units on: " + str(rec)
+
+        self.assertEqual(err, 0, msg="Missing units on interesting PVs in project" )
+
+    def test_desc_length(self):
+        """
+        This method checks that the description length on dbs is no longer than 40 chars
+        """
+
+        err = 0
+        for rec in recs:
+            descs = rec.getField("DESC")
+
+            for desc in descs:
+                #remove macros
+                desc = re.sub(r'\$\([^)]*\)', '', desc)
+
+                if len(desc) > 40:
+                    err += 1
+                    print "Description too long on: " + str(rec)
+
+        self.assertEqual(err, 0, msg="Overly long description in project")
 
     def allowed_unit(self, unit):
         """
@@ -123,28 +113,23 @@ class TestPVUnits(unittest.TestCase):
         for ind, label in enumerate(unitLabel):
             if not self.allowed_unit(label):
                 invalid += 1
-                print str(label) + ":"
-                for item in unitsArray[ind]:
-                    print "     " + str(item)
+                print "Invalid units on: " + str(rec)
 
         print "Units in project and number of instances: " + str(saved_units)
 
-        self.assertEqual(invalid, 0)
+        self.assertEqual(invalid, 0, "Invalid units in project")
 
     def test_interest_descriptions(self):
         """
         This method checks all records marked as interesting for description fields
         """
         err = 0
-        errString = ""
         for rec in recs:
             if rec.isInterest() and len(rec.getField("DESC")) != 1:
                 print "Missing description on: " + str(rec)
-                errString += str(rec) + ", "
-
                 err += 1
 
-        self.assertTrue(err == 0, "Missing description on interesting fields: " + errString)
+        self.assertTrue(err == 0, "Missing description on interesting PVs in project")
 
     def test_interest_syntax(self):
         """
