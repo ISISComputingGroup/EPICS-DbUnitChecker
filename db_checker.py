@@ -15,13 +15,14 @@ import re
 EGU_list = {'ai', 'ao', 'calc', 'calcout', 'compress', 'dfanout', 'longin', 'longout', 'mbbo', 'mbboDirect', 'permissive',\
     'sel', 'seq', 'state', 'stringin', 'stringout', 'subArray', 'sub', 'waveform', 'archive', 'cpid', 'pid', 'steppermotor'}
 
-EGU_sub_list = {'longin', 'longout' 'ai', 'ao'}
+EGU_sub_list = {'longin', 'longout', 'ai', 'ao'}
 
 #list of the accepted units
 allowed_units = {'A', 'angstrom', 'bar', 'bit', 'byte', 'C', 'count', 'degree', 'eV', 'hour', 'Hz', 'inch', \
               'interrupt', 'K', 'L', 'm', 'minute', 'ohm', '%', 'photon', 'pixel', 'radian', 's', 'torr', 'step', 'V'}
 
 recs = []
+
 
 class TestPVUnits(unittest.TestCase):
 
@@ -31,15 +32,18 @@ class TestPVUnits(unittest.TestCase):
         """
         err = 0
 
+
         for rec in recs:
             rec_type = rec.getType()
 
             if rec.isInterest() and not rec.isDisable() and (rec_type in EGU_sub_list):
                 unit = rec.getField("EGU")
 
-                if len(unit) == 0 or unit == "":
+                if len(unit) == 0:
                     err += 1
-                    print "Missing units on: " + str(rec)
+                    print "ERROR: Missing units on " + str(rec)
+                elif unit[0] == "":
+                    print "WARNING: Blank units on " + str(rec)
 
         self.assertEqual(err, 0, msg="Missing units on interesting PVs in project" )
 
@@ -58,7 +62,7 @@ class TestPVUnits(unittest.TestCase):
 
                 if len(desc) > 40:
                     err += 1
-                    print "Description too long on: " + str(rec)
+                    print "ERROR: Description too long on " + str(rec)
 
         self.assertEqual(err, 0, msg="Overly long description in project")
 
@@ -95,6 +99,8 @@ class TestPVUnits(unittest.TestCase):
         saved_units = dict({})
         unitLabel = []
         unitsArray = []
+        invalid = 0
+
         for rec in recs:
             unit = rec.getField("EGU")
 
@@ -108,12 +114,9 @@ class TestPVUnits(unittest.TestCase):
                     unitLabel.append(unit[0])
                     unitsArray.append([])
                     unitsArray[unitLabel.index(unit[0])].append(rec)
-
-        invalid = 0
-        for ind, label in enumerate(unitLabel):
-            if not self.allowed_unit(label):
-                invalid += 1
-                print "Invalid units on: " + str(rec)
+                if not self.allowed_unit(unit[0]):
+                    invalid += 1
+                    print "ERROR: Invalid units on " + str(rec)
 
         print "Units in project and number of instances: " + str(saved_units)
 
@@ -126,7 +129,7 @@ class TestPVUnits(unittest.TestCase):
         err = 0
         for rec in recs:
             if rec.isInterest() and len(rec.getField("DESC")) != 1:
-                print "Missing description on: " + str(rec)
+                print "ERROR: Missing description on " + str(rec)
                 err += 1
 
         self.assertTrue(err == 0, "Missing description on interesting PVs in project")
