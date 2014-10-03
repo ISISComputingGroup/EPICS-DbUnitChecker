@@ -116,7 +116,9 @@ class TestPVUnits(unittest.TestCase):
                     unitsArray[unitLabel.index(unit[0])].append(rec)
                 if not self.allowed_unit(unit[0]):
                     invalid += 1
-                    print "ERROR: Invalid units on " + str(rec)
+                    print "ERROR: Invalid units ("+str(unit[0])+") on " + str(rec)
+            if len(unit) > 1:
+                print "WARNING: Multiple units on " + str(rec)
 
         print "Units in project and number of instances: " + str(saved_units)
 
@@ -136,7 +138,7 @@ class TestPVUnits(unittest.TestCase):
 
     def test_interest_syntax(self):
         """
-        This method tests that all interesting PVs are capitalised and contain only a-z A-Z 0-9 _ :
+        This method tests that all interesting PVs are capitalised and contain only A-Z 0-9 _ :
         """
         for rec in recs:
             if rec.isInterest():
