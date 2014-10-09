@@ -42,6 +42,7 @@ The project currently contains the following base units:
 * bit
 * byte
 * C
+* cm
 * count
 * degree
 * eV
