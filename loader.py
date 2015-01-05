@@ -40,7 +40,7 @@ class FileHolder:
         for root, dirs, files in os.walk(path):
             for f in files:
                 #find dbs and ignore optics and areDetector folders
-                if f.endswith(file_type) and "\\optics\\" not in root and "\\areaDetector\\" not in root:
+                if f.endswith(file_type) and "\\optics\\" not in root and "\\areaDetector\\" not in root and "\\EPICS_V4\\" not in root:
                     directory = join(root, f)
                     text = open(directory).read()
                     #check db is EPICS
