@@ -63,3 +63,8 @@ The project currently contains the following base units:
 * torr
 * step
 * V
+
+Ignoring Certain Paths
+----------------------
+
+Add directory name to ignore_paths.py

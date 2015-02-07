@@ -2,6 +2,7 @@ __author__ = 'ffv81422'
 
 from os.path import join
 from db_parser import Parser
+from ignored_paths import *
 import os
 
 class SingleFile:
@@ -39,8 +40,8 @@ class FileHolder:
         #walk through all files
         for root, dirs, files in os.walk(path):
             for f in files:
-                #find dbs and ignore optics and areDetector folders
-                if f.endswith(file_type) and "\\optics\\" not in root and "\\areaDetector\\" not in root and "\\EPICS_V4\\" not in root:
+                #find dbs but ignoring certain directories
+                if f.endswith(file_type) and not any(x in root for x in ignored_paths()):
                     directory = join(root, f)
                     text = open(directory).read()
                     #check db is EPICS
