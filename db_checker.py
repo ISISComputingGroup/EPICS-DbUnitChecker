@@ -17,9 +17,9 @@ EGU_list = {'ai', 'ao', 'calc', 'calcout', 'compress', 'dfanout', 'longin', 'lon
 
 EGU_sub_list = {'longin', 'longout', 'ai', 'ao'}
 
-#list of the accepted units
+#list of the accepted units (standard prefixs to these units are also accepted and checked for below)
 allowed_units = {'A', 'angstrom', 'bar', 'bit', 'byte', 'C', 'count', 'degree', 'eV', 'hour', 'Hz', 'inch', \
-              'interrupt', 'K', 'L', 'm', 'minute', 'ohm', '%', 'photon', 'pixel', 'radian', 'ms', 's', 'torr', 'step', 'V'}
+              'interrupt', 'K', 'L', 'm', 'minute', 'ohm', '%', 'photon', 'pixel', 'radian', 's', 'torr', 'step', 'V'}
 
 recs = []
 
@@ -116,7 +116,14 @@ class TestPVUnits(unittest.TestCase):
                     unitsArray[unitLabel.index(unit[0])].append(rec)
                 if not self.allowed_unit(unit[0]):
                     invalid += 1
-                    print "ERROR: Invalid units ("+str(unit[0])+") on " + str(rec)
+                    try:
+                        unicode(str(unit[0]), 'ascii')
+                    except UnicodeDecodeError as err:
+                        str_unit = ""
+                    else:
+                        str_unit = " (" + str(unit[0]) + ")"
+
+                    print "ERROR: Invalid units"+str_unit+" on " + str(rec)
             if len(unit) > 1:
                 print "WARNING: Multiple units on " + str(rec)
 
