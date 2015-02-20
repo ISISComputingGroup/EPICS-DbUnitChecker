@@ -19,7 +19,7 @@ EGU_sub_list = {'longin', 'longout', 'ai', 'ao'}
 
 #list of the accepted units
 allowed_units = {'A', 'angstrom', 'bar', 'bit', 'byte', 'C', 'count', 'degree', 'eV', 'hour', 'Hz', 'inch', \
-              'interrupt', 'K', 'L', 'm', 'minute', 'ohm', '%', 'photon', 'pixel', 'radian', 's', 'torr', 'step', 'V'}
+              'interrupt', 'K', 'L', 'm', 'minute', 'ohm', '%', 'photon', 'pixel', 'radian', 'ms', 's', 'torr', 'step', 'V'}
 
 recs = []
 
