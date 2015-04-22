@@ -92,7 +92,7 @@ class Field:
     This class holds all the data about each field within a record
     """
     def __init__(self, name, value):
-        self.name   = name
+        self.name   = name.strip()
         self.value  = value
 
     def __str__(self):
