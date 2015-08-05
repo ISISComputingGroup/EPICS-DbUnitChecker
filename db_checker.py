@@ -149,10 +149,11 @@ class TestPVUnits(unittest.TestCase):
         """
         for rec in recs:
             if rec.isInterest():
-                se = re.search('[^\w_:]', rec.pv)
-                self.assertFalse(se is None, "CHARACTER ERROR: " + rec.pv + " contains illegal characters")
-                print "WARNING: CASING ERROR: " + rec.pv + " should be upper-case"
-#                self.assertTrue(rec.pv.isupper(), "CASING ERROR: " + rec.pv + " should be upper-case")
+                mypv = re.sub(r'\$\(.*\)', '', rec.pv) # remove macros
+                se = re.search(r'[^\w:]', mypv)
+                self.assertTrue(se is None, "ERROR: " + rec.pv + " contains illegal characters")
+                if not mypv.isupper():
+                    print "WARNING: " + rec.pv + " should be upper-case"
 
 def setUp():
     """
