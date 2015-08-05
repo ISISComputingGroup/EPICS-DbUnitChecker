@@ -152,7 +152,7 @@ class TestPVUnits(unittest.TestCase):
                 mypv = re.sub(r'\$\(.*\)', '', rec.pv) # remove macros
                 se = re.search(r'[^\w:]', mypv)
                 self.assertTrue(se is None, "ERROR: " + rec.pv + " contains illegal characters")
-                if not mypv.isupper():
+                if len(mypv) > 0 and not mypv.isupper():
                     print "WARNING: " + rec.pv + " should be upper-case"
 
 def setUp():
