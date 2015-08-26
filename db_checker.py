@@ -166,9 +166,9 @@ def setUp():
 
     for file_type in ['.db', '.template']:
 
-        dbs.loadFiles('..\\..\\ioc', file_type)
-        dbs.loadFiles('..\\..\\support', file_type)
-        dbs.loadFiles('..\\', file_type)
+        dbs.loadFiles('..\\..\\..\\ioc', file_type)
+        dbs.loadFiles('..\\..\\..\\support', file_type)
+        dbs.loadFiles('..\\..', file_type)
 
     num = dbs.getFileNum()
     print "Number of EPICS dbs Found: " + str(num)
@@ -180,7 +180,7 @@ def setUp():
     print "Num of recs: " + str(len(recs))
 
 
-DEFAULT_DIRECTORY = '..\\..\\test-reports'
+DEFAULT_DIRECTORY = '..\\..\\..\\test-reports'
 
 if __name__ == '__main__':
     """
