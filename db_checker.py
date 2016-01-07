@@ -10,6 +10,7 @@ from loader import FileHolder
 import xmlrunner
 import argparse
 import re
+import sys
 
 #list of those record types that should have a EGU field
 EGU_list = {'ai', 'ao', 'calc', 'calcout', 'compress', 'dfanout', 'longin', 'longout', 'mbbo', 'mbboDirect', 'permissive',\
@@ -202,6 +203,10 @@ if __name__ == '__main__':
 
     print "\n\n------ BEGINNING PV UNIT TESTS ------"
 
-    xmlrunner.XMLTestRunner(output=xml_dir).run(units_suite)
+    ret_vals = list()
+    ret_vals.append(xmlrunner.XMLTestRunner(output=xml_dir).run(units_suite).wasSuccessful())
 
     print "------ PV UNIT TESTS COMPLETE ------\n\n"
+
+    # Return failure exit code if a test failed
+    sys.exit(False in ret_vals)
