@@ -143,7 +143,7 @@ class TestPVUnits(unittest.TestCase):
                 print "ERROR: Missing description on " + str(rec)
                 err += 1
 
-        self.assertTrue(err == 0, "Missing description on interesting PVs in project")
+        self.assertTrue(err == 0, "Missing or duplicate description on interesting PVs in project")
 
     def test_interest_syntax(self):
         """
