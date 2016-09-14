@@ -109,12 +109,8 @@ class TestPVUnits(unittest.TestCase):
             if len(unit) == 1 and unit[0] != "":
                 if unit[0] in saved_units:
                     saved_units[unit[0]] += 1
-                    unit_label[unit_label.index(unit[0])].append(rec)
                 else:
                     saved_units[unit[0]] = 1
-                    unit_label.append(unit[0])
-                    units_array.append([])
-                    units_array[unit_label.index(unit[0])].append(rec)
                 if not self.allowed_unit(unit[0]):
                     invalid += 1
                     try:
