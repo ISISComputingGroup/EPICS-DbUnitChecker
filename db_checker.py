@@ -98,8 +98,6 @@ class TestPVUnits(unittest.TestCase):
 
         # Holds the records sorted by unit
         saved_units = dict({})
-        unit_label = []
-        units_array = []
         invalid = 0
 
         for rec in recs:
