@@ -10,11 +10,12 @@ Current error checks are:
 #. All units must conform to unit standards (see below)
 #. PVs that are labelled as interesting must have description fields
 #. The names of PVs that are labelled as interesting must be capitialised and contain only A-Z 0-9 _ :
+#. There should be no duplicate fields on PVs
 
 Current warning are:
 
-#. PVs may not have multiple unit fields
 #. PVs that are labelled as interesting and have type longin, longout, ai or ao may not have blank fields
+#. PVs are duplicated in a document
 
 The checker is run at the end of a build on Jenkins and unit tests are failed if any of the error checks fail. Failed warnings will be noted and displayed in the test report but will not result in an unstable build.
 
