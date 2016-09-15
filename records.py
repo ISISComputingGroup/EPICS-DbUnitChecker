@@ -2,6 +2,7 @@
 This file holds the classes to hold the record and field data
 """
 import re
+import os
 
 
 class Record:
@@ -37,7 +38,7 @@ class Record:
         return self.disable
 
     def __str__(self):
-        return str(self.directory) + "\\" + str(self.pv)
+        return str(os.path.basename(self.directory)) + "\\" + str(self.pv)
 
     def get_field_names(self):
         """

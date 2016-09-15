@@ -38,7 +38,7 @@ class TestPVUnits(unittest.TestCase):
 
         for k, v in dups.iteritems():
             if len(v) > 1:
-                print "WARNING: Multiple instances of " + str(k) + " in " + str([str(r) for r in v])
+                print "WARNING: Multiple instances of " + str([str(r) for r in v])
 
     def test_multiple_properties_on_pvs(self):
         """
@@ -50,7 +50,7 @@ class TestPVUnits(unittest.TestCase):
             fields = rec.get_field_names()
             if len(set(fields)) != len(fields):
                 err += 1
-                print "ERROR: Multiple fields on " + str(rec)
+                print "ERROR: Multiple of the same fields on " + str(rec)
 
         self.assertEqual(err, 0, msg="Multiple fields on PVs in project")
 
@@ -181,7 +181,7 @@ class TestPVUnits(unittest.TestCase):
                     print "ERROR: " + rec.pv + " contains illegal characters"
                     err += 1
                 if len(mypv) > 0 and not mypv.isupper():
-                    print "ERROR: " + rec.pv + " should be upper-case"
+                    print "ERROR: " + str(rec) + " should be upper-case"
                     err += 1
 
         self.assertEqual(err, 0, msg="PV syntax incorrect")
@@ -217,7 +217,7 @@ if __name__ == '__main__':
     Runs the unit tests
     """
 
-    default_dirs = ['..\\..\\..\\ioc', '..\\..\\..\\support', '..\\..\\..']
+    default_dirs = ['..\\..\\..\\ioc', '..\\..\\..\\support', '..\\..']
 
     # Get output directory from command line arguments
     parser = argparse.ArgumentParser()
