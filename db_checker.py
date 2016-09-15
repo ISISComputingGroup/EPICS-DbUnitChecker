@@ -9,6 +9,7 @@ import xmlrunner
 import argparse
 import re
 import sys
+from collections import defaultdict
 
 # list of those record types that should have a EGU field
 EGU_list = {'ai', 'ao', 'calc', 'calcout', 'compress', 'dfanout', 'longin', 'longout', 'mbbo', 'mbboDirect',
@@ -20,43 +21,74 @@ EGU_sub_list = {'longin', 'longout', 'ai', 'ao'}
 # list of the accepted units (standard prefixs to these units are also accepted and checked for below)
 allowed_units = {'A', 'angstrom', 'bar', 'bit', 'byte', 'C', 'count', 'degree', 'eV', 'hour', 'Hz', 'inch',
                  'interrupt', 'K', 'L', 'm', 'min', 'minute', 'ohm', '%', 'photon', 'pixel', 'radian', 's', 'torr',
-                 'step', 'V', 'mT', 'uT', 'Oersted'}
+                 'step', 'V', 'T', 'Oersted'}
 
 recs = []
 
 
 class TestPVUnits(unittest.TestCase):
 
-    def test_interest_units(self):
+    def test_muliple_pvs_warning(self):
         """
-        This method checks that interesting fields have units
+        This method warns if there are multiple PVs with the same name in the project
+        """
+        dups = defaultdict(list)  # Makes a dict of lists
+        for rec in recs:
+            dups[rec.pv].append(rec)
+
+        for k, v in dups.iteritems():
+            if len(v) > 1:
+                print "WARNING: Multiple instances of " + str(k) + " in " + str([str(r) for r in v])
+
+    def test_multiple_properties_on_pvs(self):
+        """
+        This method checks that no PVs have duplicate fields
         """
         err = 0
 
         for rec in recs:
-            rec_type = rec.get_type()
+            fields = rec.get_field_names()
+            if len(set(fields)) != len(fields):
+                err += 1
+                print "ERROR: Multiple fields on " + str(rec)
 
-            if rec.is_interest() and not rec.is_disable() and (rec_type in EGU_sub_list):
+        self.assertEqual(err, 0, msg="Multiple fields on PVs in project")
+
+    def test_interest_populated_fields_warning(self):
+        """
+        This method warns if interesting PVs have all fields populated
+        """
+        for rec in recs:
+            fields_values = rec.get_field_values()
+
+            if None in fields_values or "" in fields_values:
+                print "WARNING: Blank fields on " + str(rec)
+
+    def test_interest_units(self):
+        """
+        This method checks that interesting PVs have units
+        """
+        err = 0
+
+        for rec in recs:
+            if rec.is_interest() and not rec.is_disable() and (rec.get_type() in EGU_sub_list):
                 unit = rec.get_field("EGU")
 
-                if len(unit) == 0:
+                if unit is None:
                     err += 1
                     print "ERROR: Missing units on " + str(rec)
-                elif unit[0] == "":
-                    print "WARNING: Blank units on " + str(rec)
 
         self.assertEqual(err, 0, msg="Missing units on interesting PVs in project")
 
     def test_desc_length(self):
         """
-        This method checks that the description length on dbs is no longer than 40 chars
+        This method checks that the description length on all PVs is no longer than 40 chars
         """
-
         err = 0
         for rec in recs:
-            descs = rec.get_field("DESC")
+            desc = rec.get_field("DESC")
 
-            for desc in descs:
+            if desc is not None:
                 # remove macros
                 desc = re.sub(r'\$\([^)]*\)', '', desc)
 
@@ -74,7 +106,7 @@ class TestPVUnits(unittest.TestCase):
             return True
 
         # otherwise check for macro
-        if unit[0] == "$":
+        if unit == "$":
             return True
 
         # otherwise split unit amalgamations
@@ -97,31 +129,28 @@ class TestPVUnits(unittest.TestCase):
         """
 
         # Holds the records sorted by unit
-        saved_units = dict({})
+        saved_units = dict()
         invalid = 0
 
         for rec in recs:
             unit = rec.get_field("EGU")
 
             # add the units to the appropriate place in the dictionary
-            if len(unit) == 1 and unit[0] != "":
-                if unit[0] in saved_units:
-                    saved_units[unit[0]] += 1
+            if unit is not None and unit != "":
+                if unit in saved_units:
+                    saved_units[unit] += 1
                 else:
-                    saved_units[unit[0]] = 1
-                if not self.allowed_unit(unit[0]):
+                    saved_units[unit] = 1
+                if not self.allowed_unit(unit):
                     invalid += 1
                     try:
-                        unicode(str(unit[0]), 'ascii')
+                        unicode(str(unit), 'ascii')
                     except UnicodeDecodeError:
                         str_unit = ""
                     else:
-                        str_unit = " (" + str(unit[0]) + ")"
+                        str_unit = " (" + str(unit) + ")"
 
                     print "ERROR: Invalid units" + str_unit + " on " + str(rec)
-
-            if len(unit) > 1:
-                print "WARNING: Multiple units on " + str(rec)
 
         print "Units in project and number of instances: " + str(saved_units)
 
@@ -133,7 +162,7 @@ class TestPVUnits(unittest.TestCase):
         """
         err = 0
         for rec in recs:
-            if rec.is_interest() and len(rec.get_field("DESC")) != 1:
+            if rec.is_interest() and not rec.has_field("DESC"):
                 print "ERROR: Missing description on " + str(rec)
                 err += 1
 
@@ -143,13 +172,19 @@ class TestPVUnits(unittest.TestCase):
         """
         This method tests that all interesting PVs are capitalised and contain only A-Z 0-9 _ :
         """
+        err = 0
         for rec in recs:
             if rec.is_interest():
                 mypv = re.sub(r'\$\(.*\)', '', rec.pv)  # remove macros
                 se = re.search(r'[^\w:]', mypv)
-                self.assertTrue(se is None, "ERROR: " + rec.pv + " contains illegal characters")
+                if se is not None:
+                    print "ERROR: " + rec.pv + " contains illegal characters"
+                    err += 1
                 if len(mypv) > 0 and not mypv.isupper():
-                    print "WARNING: " + rec.pv + " should be upper-case"
+                    print "ERROR: " + rec.pv + " should be upper-case"
+                    err += 1
+
+        self.assertEqual(err, 0, msg="PV syntax incorrect")
 
 
 def set_up(directories):

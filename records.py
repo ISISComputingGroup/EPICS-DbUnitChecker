@@ -39,6 +39,18 @@ class Record:
     def __str__(self):
         return str(self.directory) + "\\" + str(self.pv)
 
+    def get_field_names(self):
+        """
+        This method returns all field names as a list
+        """
+        return [field.name for field in self.fields]
+
+    def get_field_values(self):
+        """
+        This method returns all field values as a list
+        """
+        return [field.value for field in self.fields]
+
     def has_field(self, search):
         """
         This method checks all contained fields for instances of a pv given by the search input
@@ -50,14 +62,13 @@ class Record:
 
     def get_field(self, search):
         """
-        This method returns a list of the values of all contained fields that match the search input
+        This method returns the values of the first field contained within the record that matches the search input
+        If no field exists None is returned
         """
-        found_values = []
         for field in self.fields:
             if field.name == search:
-                found_values.append(field.value)
-
-        return found_values
+                return field.value
+        return None
 
     def get_type(self):
         """
@@ -88,7 +99,7 @@ class Record:
 
 class Field:
     """
-    This class holds all the data about each field within a record
+    This class holds all the data about each field within a record, not using a dictionary as may not be unique
     """
     def __init__(self, name, value):
         self.name = name.strip()
