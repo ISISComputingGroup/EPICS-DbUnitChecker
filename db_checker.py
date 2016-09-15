@@ -106,7 +106,7 @@ class TestPVUnits(unittest.TestCase):
             return True
 
         # otherwise check for macro
-        if unit == "$":
+        if "$" in unit:
             return True
 
         # otherwise split unit amalgamations
