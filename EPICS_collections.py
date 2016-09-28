@@ -2,7 +2,18 @@
 This file holds the classes to hold the record and field data
 """
 import re
-import os
+
+
+class Db:
+    """
+    This class holds all the data in a single db
+    """
+    def __init__(self, directory, records):
+        self.directory = directory
+        self.records = records
+
+    def __str__(self):
+        return str(self.directory)
 
 
 class Record:
@@ -12,8 +23,7 @@ class Record:
     interrogated.
     """
 
-    def __init__(self, directory, rec_type, pv, infos, fields):
-        self.directory = directory
+    def __init__(self, rec_type, pv, infos, fields):
         self.type = rec_type
         self.pv = pv
         self.fields = fields
@@ -38,7 +48,7 @@ class Record:
         return self.disable
 
     def __str__(self):
-        return str(os.path.basename(self.directory)) + "\\" + str(self.pv)
+        return str(self.pv)
 
     def get_field_names(self):
         """

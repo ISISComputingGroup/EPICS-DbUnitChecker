@@ -10,6 +10,7 @@ import argparse
 import re
 import sys
 from collections import defaultdict
+from ignored_paths import ignored_names_paths
 
 # list of those record types that should have a EGU field
 EGU_list = {'ai', 'ao', 'calc', 'calcout', 'compress', 'dfanout', 'longin', 'longout', 'mbbo', 'mbboDirect',
@@ -20,25 +21,30 @@ EGU_sub_list = {'longin', 'longout', 'ai', 'ao'}
 
 # list of the accepted units (standard prefixs to these units are also accepted and checked for below)
 allowed_units = {'A', 'angstrom', 'bar', 'bit', 'byte', 'C', 'count', 'degree', 'eV', 'hour', 'Hz', 'inch',
-                 'interrupt', 'K', 'L', 'm', 'min', 'minute', 'ohm', '%', 'photon', 'pixel', 'radian', 's', 'torr',
-                 'step', 'V', 'T', 'Oersted'}
+                 'interrupt', 'K', 'L', 'm', 'min', 'minute', 'ohm', 'Oersted', '%', 'photon', 'pixel', 'radian', 's',
+                 'torr', 'step', 'T', 'V'}
 
-recs = []
+dbs = list()
+
+
+def err_src_fmt(db, rec):
+    return str(rec) + " in " + str(db)
 
 
 class TestPVUnits(unittest.TestCase):
 
-    def test_muliple_pvs_warning(self):
+    def test_multiple_pvs_warning(self):
         """
         This method warns if there are multiple PVs with the same name in the project
         """
-        dups = defaultdict(list)  # Makes a dict of lists
-        for rec in recs:
-            dups[rec.pv].append(rec)
+        for db in dbs:
+            dups = defaultdict(list)  # Makes a dict of lists
+            for rec in db.records:
+                dups[str(rec.pv)].append(rec)
 
-        for k, v in dups.iteritems():
-            if len(v) > 1:
-                print "WARNING: Multiple instances of " + str([str(r) for r in v])
+            for k, v in dups.iteritems():
+                if len(v) > 1:
+                    print "WARNING: Multiple instances of " + err_src_fmt(db, k)
 
     def test_multiple_properties_on_pvs(self):
         """
@@ -46,23 +52,26 @@ class TestPVUnits(unittest.TestCase):
         """
         err = 0
 
-        for rec in recs:
-            fields = rec.get_field_names()
-            if len(set(fields)) != len(fields):
-                err += 1
-                print "ERROR: Multiple of the same fields on " + str(rec)
+        for db in dbs:
+            for rec in db.records:
+                fields = rec.get_field_names()
+                if len(set(fields)) != len(fields):
+                    err += 1
+                    print "ERROR: Multiple of the same fields on " + err_src_fmt(db, rec)
 
         self.assertEqual(err, 0, msg="Multiple fields on PVs in project")
 
     def test_interest_populated_fields_warning(self):
         """
-        This method warns if interesting PVs have all fields populated
+        This method warns if interesting PVs don't have all fields populated
         """
-        for rec in recs:
-            fields_values = rec.get_field_values()
+        for db in dbs:
+            for rec in db.records:
+                if rec.is_interest():
+                    fields_values = rec.get_field_values()
 
-            if None in fields_values or "" in fields_values:
-                print "WARNING: Blank fields on " + str(rec)
+                    if None in fields_values or "" in fields_values:
+                        print "WARNING: Blank fields on " + err_src_fmt(db, rec)
 
     def test_interest_units(self):
         """
@@ -70,13 +79,14 @@ class TestPVUnits(unittest.TestCase):
         """
         err = 0
 
-        for rec in recs:
-            if rec.is_interest() and not rec.is_disable() and (rec.get_type() in EGU_sub_list):
-                unit = rec.get_field("EGU")
+        for db in dbs:
+            for rec in db.records:
+                if rec.is_interest() and not rec.is_disable() and (rec.get_type() in EGU_sub_list):
+                    unit = rec.get_field("EGU")
 
-                if unit is None:
-                    err += 1
-                    print "ERROR: Missing units on " + str(rec)
+                    if unit is None:
+                        err += 1
+                        print "ERROR: Missing units on " + err_src_fmt(db, rec)
 
         self.assertEqual(err, 0, msg="Missing units on interesting PVs in project")
 
@@ -85,16 +95,17 @@ class TestPVUnits(unittest.TestCase):
         This method checks that the description length on all PVs is no longer than 40 chars
         """
         err = 0
-        for rec in recs:
-            desc = rec.get_field("DESC")
+        for db in dbs:
+            for rec in db.records:
+                desc = rec.get_field("DESC")
 
-            if desc is not None:
-                # remove macros
-                desc = re.sub(r'\$\([^)]*\)', '', desc)
+                if desc is not None:
+                    # remove macros
+                    desc = re.sub(r'\$\([^)]*\)', '', desc)
 
-                if len(desc) > 40:
-                    err += 1
-                    print "ERROR: Description too long on " + str(rec)
+                    if len(desc) > 40:
+                        err += 1
+                        print "ERROR: Description too long on " + err_src_fmt(db, rec)
 
         self.assertEqual(err, 0, msg="Overly long description in project")
 
@@ -132,25 +143,26 @@ class TestPVUnits(unittest.TestCase):
         saved_units = dict()
         invalid = 0
 
-        for rec in recs:
-            unit = rec.get_field("EGU")
+        for db in dbs:
+            for rec in db.records:
+                unit = rec.get_field("EGU")
 
-            # add the units to the appropriate place in the dictionary
-            if unit is not None and unit != "":
-                if unit in saved_units:
-                    saved_units[unit] += 1
-                else:
-                    saved_units[unit] = 1
-                if not self.allowed_unit(unit):
-                    invalid += 1
-                    try:
-                        unicode(str(unit), 'ascii')
-                    except UnicodeDecodeError:
-                        str_unit = ""
+                # add the units to the appropriate place in the dictionary
+                if unit is not None and unit != "":
+                    if unit in saved_units:
+                        saved_units[unit] += 1
                     else:
-                        str_unit = " (" + str(unit) + ")"
+                        saved_units[unit] = 1
+                    if not self.allowed_unit(unit):
+                        invalid += 1
+                        try:
+                            unicode(str(unit), 'ascii')
+                        except UnicodeDecodeError:
+                            str_unit = ""
+                        else:
+                            str_unit = " (" + str(unit) + ")"
 
-                    print "ERROR: Invalid units" + str_unit + " on " + str(rec)
+                        print "ERROR: Invalid units" + str_unit + " on " + err_src_fmt(db, rec)
 
         print "Units in project and number of instances: " + str(saved_units)
 
@@ -161,28 +173,39 @@ class TestPVUnits(unittest.TestCase):
         This method checks all records marked as interesting for description fields
         """
         err = 0
-        for rec in recs:
-            if rec.is_interest() and not rec.has_field("DESC"):
-                print "ERROR: Missing description on " + str(rec)
-                err += 1
+        for db in dbs:
+            for rec in db.records:
+                if rec.is_interest() and not rec.has_field("DESC"):
+                    print "ERROR: Missing description on " + err_src_fmt(db, rec)
+                    err += 1
 
-        self.assertEqual(err, 0, msg="Missing or duplicate description on interesting PVs in project")
+        self.assertEqual(err, 0, msg="Missing description on interesting PVs in project")
 
     def test_interest_syntax(self):
         """
-        This method tests that all interesting PVs are capitalised and contain only A-Z 0-9 _ :
+        This method tests that all interesting PVs that are not in the names exception list are capitalised and
+        contain only A-Z 0-9 _ :
         """
         err = 0
-        for rec in recs:
-            if rec.is_interest():
-                mypv = re.sub(r'\$\(.*\)', '', rec.pv)  # remove macros
-                se = re.search(r'[^\w:]', mypv)
-                if se is not None:
-                    print "ERROR: " + rec.pv + " contains illegal characters"
-                    err += 1
-                if len(mypv) > 0 and not mypv.isupper():
-                    print "ERROR: " + str(rec) + " should be upper-case"
-                    err += 1
+        for db in dbs:
+            ignore = False
+
+            for dir in ignored_names_paths:
+                if dir in db.directory:
+                    ignore = True
+
+            if not ignore:
+                for rec in db.records:
+                    if rec.is_interest():
+
+                        mypv = re.sub(r'\$\(.*\)', '', rec.pv)  # remove macros
+                        se = re.search(r'[^\w:]', mypv)
+                        if se is not None:
+                            print "ERROR: " + err_src_fmt(db, rec) + " contains illegal characters"
+                            err += 1
+                        if len(mypv) > 0 and not mypv.isupper():
+                            print "ERROR: " + err_src_fmt(db, rec) + " should be upper-case"
+                            err += 1
 
         self.assertEqual(err, 0, msg="PV syntax incorrect")
 
@@ -192,7 +215,7 @@ def set_up(directories):
     This set up method loads and parses the db and template files prior to testing.
     """
 
-    global recs
+    global dbs
 
     dbs = FileHolder()
 
@@ -200,14 +223,11 @@ def set_up(directories):
         for file_type in ['.db', '.template']:
             dbs.load_files(directory, file_type)
 
-    num = dbs.get_file_num()
-    print "Number of EPICS dbs Found: " + str(num)
-
     # dbs.saveChecked()
 
-    recs = dbs.parse_files()
+    dbs = dbs.parse_files()
 
-    print "Num of recs: " + str(len(recs))
+    print "Number of EPICS dbs Found: " + str(len(dbs))
 
 
 DEFAULT_DIRECTORY = '..\\..\\..\\test-reports'
@@ -221,9 +241,9 @@ if __name__ == '__main__':
 
     # Get output directory from command line arguments
     parser = argparse.ArgumentParser()
-    parser.add_argument('-o', '--output_dir', nargs=1, type=str, default=[DEFAULT_DIRECTORY],
+    parser.add_argument('-o', '--output_dir', nargs=1, type=str, default=DEFAULT_DIRECTORY,
                         help='The directory to save the test reports')
-    parser.add_argument('-i', '--input_dir', nargs='+', type=str, default=[default_dirs],
+    parser.add_argument('-i', '--input_dir', nargs='+', type=str, default=default_dirs,
                         help='The input directories to look for db files within')
     args = parser.parse_args()
     xml_dir = args.output_dir[0]

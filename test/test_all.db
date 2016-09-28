@@ -58,6 +58,10 @@ record(calc, "SHOULDFAIL:NODESC")
 	info(INTEREST, "HIGH")
 }
 
+record(calc, "SHOULDPASS:NOINTEREST")
+{
+}
+
 ######  Error 5  #######
 
 record(calc, "SHOULDPASS:GOODPV") 

@@ -15,7 +15,7 @@ Current error checks are:
 Current warning are:
 
 1. PVs that are labelled as interesting and have type longin, longout, ai or ao may not have blank fields
-2. PVs are duplicated in the project
+2. PVs are duplicated in a db
 
 The checker is run at the end of a build on Jenkins and unit tests are failed if any of the error checks fail. Failed warnings will be noted and displayed in the test report but will not result in an unstable build.
 
@@ -56,6 +56,7 @@ The project currently contains the following base units:
 * m
 * minute
 * ohm
+* Oersted
 * %
 * photon
 * pixel
@@ -65,7 +66,6 @@ The project currently contains the following base units:
 * step
 * V
 * T
-* Oersted
 
 Ignoring Certain Paths
 ----------------------

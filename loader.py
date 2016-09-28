@@ -1,6 +1,6 @@
 from os.path import join
-from db_parser import Parser
-from ignored_paths import *
+from db_parser import parse_db
+from ignored_paths import ignored_paths
 import os
 
 
@@ -41,7 +41,7 @@ class FileHolder:
         for root, dirs, files in os.walk(path):
             for f in files:
                 # find dbs but ignoring certain directories
-                if f.endswith(file_type) and not any(x in root for x in ignored_paths()):
+                if f.endswith(file_type) and not any(x in root for x in ignored_paths):
                     directory = join(root, f)
                     text = open(directory).read()
                     # check db is EPICS
@@ -66,17 +66,7 @@ class FileHolder:
         """
         Method that stores all the records from all found files and returns a list of them
         """
-
-        recs = []
-
-        for db in self.dbs:
-            parse = Parser(db)
-            recs.extend(parse.parse_db())
-
-        return recs
-
-    def get_file_num(self):
-        return len(self.dbs)
+        return [parse_db(db) for db in self.dbs]
 
     def load_checked(self):
         """
