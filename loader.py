@@ -41,7 +41,7 @@ class FileHolder:
         for root, dirs, files in os.walk(path):
             for f in files:
                 # find dbs but ignoring certain directories
-                if f.endswith(file_type) and not any(x in root for x in ignored_paths):
+                if f.endswith(file_type) and not any((os.sep + x + os.sep) in root for x in ignored_paths):
                     directory = join(root, f)
                     text = open(directory).read()
                     # check db is EPICS

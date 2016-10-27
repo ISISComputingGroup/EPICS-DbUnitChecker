@@ -9,6 +9,7 @@ import xmlrunner
 import argparse
 import re
 import sys
+import os
 from collections import defaultdict
 from ignored_paths import ignored_names_paths
 
@@ -190,7 +191,8 @@ class TestPVUnits(unittest.TestCase):
         for db in dbs:
             ignore = False
 
-            for dir in ignored_names_paths:
+            for d in ignored_names_paths:
+                dir = os.sep + d + os.sep
                 if dir in db.directory:
                     ignore = True
 
@@ -237,7 +239,8 @@ if __name__ == '__main__':
     Runs the unit tests
     """
 
-    default_dirs = ['..\\..\\..\\ioc', '..\\..\\..\\support', '..\\..']
+    default_dirs = [ os.path.join('..','..','..','ioc'),
+        os.path.join('..','..','..','support'), os.path.join('..','..') ]
 
     # Get output directory from command line arguments
     parser = argparse.ArgumentParser()
