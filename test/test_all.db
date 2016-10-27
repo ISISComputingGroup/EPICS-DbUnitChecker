@@ -1,0 +1,118 @@
+#Tests script correctly identifies errors in rst document
+
+######  Error 1  #######
+
+record(ao, "SHOULDFAIL:NOUNITS") 
+{
+	info(INTEREST, "HIGH")
+	field(DESC, "test description")
+}
+
+record(ao, "SHOULDPASS:HASUNITS") 
+{
+	info(INTEREST, "HIGH")
+	field(EGU, "A")
+	field(DESC, "test description")
+}
+
+record(calc, "SHOULDPASS:UNINTERESTINGTYPE") 
+{
+	info(INTEREST, "HIGH")
+	field(DESC, "test description")
+}
+
+######  Error 2  #######
+
+record(ao, "SHOULDFAIL:LONGDESC") 
+{
+	field(DESC, "this text should be longer than 40 characters")
+}
+
+record(ao, "SHOULDPASS:SHORTDESC") 
+{
+	field(DESC, "this text is short")
+}
+
+######  Error 3  #######
+
+record(ao, "SHOULDPASS:GOODUNIT") 
+{
+	field(EGU, "A")
+}
+
+record(ao, "SHOULDFAIL:BADUNIT") 
+{
+	field(EGU, "BADUNIT")
+}
+
+######  Error 4  #######
+
+record(calc, "SHOULDPASS:HASDESC") 
+{
+	info(INTEREST, "HIGH")
+	field(DESC, "test description")
+}
+
+record(calc, "SHOULDFAIL:NODESC") 
+{
+	info(INTEREST, "HIGH")
+}
+
+record(calc, "SHOULDPASS:NOINTEREST")
+{
+}
+
+######  Error 5  #######
+
+record(calc, "SHOULDPASS:GOODPV") 
+{
+	info(INTEREST, "HIGH")
+	field(DESC, "test description")
+}
+
+record(calc, "SHOULDFAIL:lowercase") 
+{
+	info(INTEREST, "HIGH")
+	field(DESC, "test description")
+}
+
+record(calc, "SHOULDFAIL:b@dchars") 
+{
+	info(INTEREST, "HIGH")
+	field(DESC, "test description")
+}
+
+######  Error 6  #######
+
+record(ao, "SHOULDFAIL:DUPLICATE:EGU") 
+{
+	field(EGU, "A")
+	field(EGU, "T")
+}
+
+record(ao, "SHOULDFAIL:DUPLICATE:PINI") 
+{
+	field(PINI, 1)
+	field(PINI, 0)
+}
+
+######  Warning 1  #######
+
+record(calc, "SHOULDPASS:BLANK:DESC") 
+{
+	info(INTEREST, "HIGH")
+	field(DESC, "")
+}
+
+record(calc, "SHOULDPASS:BLANK:PINI") 
+{
+	info(INTEREST, "HIGH")
+	field(DESC, "TEST")
+	field(PINI, 1)
+}
+
+######  Warning 2  #######
+
+record(ao, "SHOULDPASS:MULTIPLEWARNING")
+{}
+
