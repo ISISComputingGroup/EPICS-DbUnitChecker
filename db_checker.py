@@ -21,7 +21,7 @@ EGU_list = {'ai', 'ao', 'calc', 'calcout', 'compress', 'dfanout', 'longin', 'lon
 EGU_sub_list = {'longin', 'longout', 'ai', 'ao'}
 
 # list of the accepted units (standard prefixs to these units are also accepted and checked for below)
-allowed_units = {'A', 'angstrom', 'bar', 'bit', 'byte', 'C', 'count', 'degree', 'eV', 'hour', 'Hz', 'inch',
+allowed_units = {'A', 'angstrom', 'bar', 'bit', 'byte', 'C', 'count', 'degree', 'eV', 'frame', 'hour', 'Hz', 'inch',
                  'interrupt', 'K', 'L', 'm', 'min', 'minute', 'ohm', 'Oersted', '%', 'photon', 'pixel', 'radian', 's',
                  'torr', 'step', 'T', 'V'}
 
