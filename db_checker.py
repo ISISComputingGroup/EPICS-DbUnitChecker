@@ -20,10 +20,12 @@ EGU_list = {'ai', 'ao', 'calc', 'calcout', 'compress', 'dfanout', 'longin', 'lon
 
 EGU_sub_list = {'longin', 'longout', 'ai', 'ao'}
 
-# list of the accepted units (standard prefixs to these units are also accepted and checked for below)
+# list of the accepted units. Standard prefixs to these units are also accepted and checked for below
+# but we need to allow 'cm' explicitly as itr is a non-standard unit prefix for metre
 allowed_units = {'A', 'angstrom', 'bar', 'bit', 'byte', 'C', 'count', 'degree', 'eV', 'frame', 'hour', 'Hz', 'inch',
-                 'interrupt', 'K', 'L', 'm', 'min', 'minute', 'ohm', 'Oersted', '%', 'photon', 'pixel', 'radian', 's',
-                 'torr', 'step', 'T', 'V'}
+                 'interrupt', 'K', 'L', 'm', 'min', 'minute', 'ohm', 'Oersted', '%', 'photon', 'pixel', 'radian', 's','torr', 'step', 'T', 'V', 'cm'}
+
+allowed_units_prefixes = r'T|G|M|k|m|u|n|p|f';
 
 dbs = list()
 
@@ -114,24 +116,20 @@ class TestPVUnits(unittest.TestCase):
         """
         This method checks that the given unit conforms to standard
         """
-        if unit in allowed_units:
-            return True
+        # expand macro $(A) to a valid unit, expand $(A=B) to B
+        u = re.sub(r'\$[({].*?=(.*)?[})]', r'\1', unit)
+        u = re.sub(r'\$[({].*?[})]', 'm', u)
 
-        # otherwise check for macro
-        if "$" in unit:
-            return True
+        # split unit amalgamations
+        units = re.split(r'[/ ()]', u)
 
-        # otherwise split unit amalgamations
-        units = re.split(r'[/ ()]', unit)
         for u in units:
+            # remove any powers of units e.g. mm^2 -> mm
+            u = re.sub(r'\^[-]?\d', '', u)
             if not (u in allowed_units):
-                # may be to the power of
-                if not (re.match(r"\^[-]?\d", u)):
-                    # may be prefixed
-                    if not (re.match(r'T|G|M|k|m|u|n|p|f', u[0]) and u[1:] in allowed_units):
-                        # special case of cm
-                        if not u == "cm":
-                            return False
+                # may be prefixed
+                if not (re.match(allowed_units_prefixes, u[0]) and u[1:] in allowed_units):
+                    return False
 
         return True
 
