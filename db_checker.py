@@ -23,7 +23,7 @@ EGU_sub_list = {'longin', 'longout', 'ai', 'ao'}
 # list of the accepted units. Standard prefixs to these units are also accepted and checked for below
 # but we need to allow 'cm' explicitly as itr is a non-standard unit prefix for metre
 allowed_units = {'A', 'angstrom', 'bar', 'bit', 'byte', 'C', 'count', 'degree', 'eV', 'frame', 'hour', 'Hz', 'inch',
-                 'interrupt', 'K', 'L', 'm', 'min', 'minute', 'ohm', 'Oersted', '%', 'photon', 'pixel', 'radian', 's','torr', 'step', 'T', 'V', 'cm'}
+                 'interrupt', 'K', 'L', 'm', 'min', 'minute', 'ohm', 'Oersted', '%', 'photon', 'pixel', 'radian', 's','torr', 'step', 'T', 'V', 'cm', 'Pa'}
 
 allowed_units_prefixes = r'T|G|M|k|m|u|n|p|f';
 
