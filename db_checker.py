@@ -14,21 +14,21 @@ from collections import defaultdict
 from ignored_paths import ignored_names_paths
 
 # list of those record types that should have a EGU field
-EGU_list = {'ai', 'ao', 'calc', 'calcout', 'compress', 'dfanout', 'longin', 'longout', 'mbbo', 'mbboDirect',
-            'permissive', 'sel', 'seq', 'state', 'stringin', 'stringout', 'subArray', 'sub', 'waveform', 'archive',
-            'cpid', 'pid', 'steppermotor'}
+EGU_list = {'ai', 'ao', 'calc', 'calcout', 'compress', 'dfanout', 'longin', 'longout', 'mbbo', 
+            'mbboDirect', 'permissive', 'sel', 'seq', 'state', 'stringin', 'stringout', 'subArray', 
+            'sub', 'waveform', 'archive', 'cpid', 'pid', 'steppermotor'}
 
 EGU_sub_list = {'longin', 'longout', 'ai', 'ao'}
 
 # list of the accepted units. Standard prefixs to these units are also accepted and checked for below
 # but we need to allow 'cm' explicitly as itr is a non-standard unit prefix for metre
-allowed_units = {'A', 'angstrom', 'bar', 'bit', 'byte', 'C', 'count', 'degree', 'eV', 'frame', 'hour', 'Hz', 'inch',
-                 'interrupt', 'K', 'L', 'm', 'min', 'minute', 'ohm', 'Oersted', '%', 'photon', 'pixel', 'radian', 's','torr', 'step', 'T', 'V', 'cm', 'Pa'}
+allowed_units = {'A', 'angstrom', 'bar', 'bit', 'byte', 'C', 'count', 'degree', 'eV', 'frame', 'hour', 
+                 'Hz', 'inch', 'interrupt', 'K', 'L', 'm', 'min', 'minute', 'ohm', 'Oersted', '%', 
+                 'photon', 'pixel', 'radian', 's','torr', 'step', 'T', 'V', 'cm', 'Pa'}
 
-allowed_units_prefixes = r'T|G|M|k|m|u|n|p|f';
+allowed_units_prefixes =  { 'T', 'G', 'M', 'k', 'm', 'u', 'n', 'p', 'f' }
 
 dbs = list()
-
 
 def err_src_fmt(db, rec):
     return str(rec) + " in " + str(db)
@@ -124,11 +124,11 @@ class TestPVUnits(unittest.TestCase):
         units = re.split(r'[/ ()]', u)
 
         for u in units:
-            # remove any powers of units e.g. mm^2 -> mm
-            u = re.sub(r'\^[-]?\d', '', u)
+            # remove any powers of units e.g. mm^2 -> mm 
+            u = re.sub(r'^([a-zA-Z]+)\^[-]?\d', r'\1', u, 1)
             if not (u in allowed_units):
                 # may be prefixed
-                if not (re.match(allowed_units_prefixes, u[0]) and u[1:] in allowed_units):
+                if not ( (u[0] in allowed_units_prefixes) and (u[1:] in allowed_units) ):
                     return False
 
         return True
