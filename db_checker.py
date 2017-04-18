@@ -125,7 +125,7 @@ class TestPVUnits(unittest.TestCase):
 
         for u in units:
             # remove any powers of units e.g. mm^2 -> mm 
-            u = re.sub(r'^([a-zA-Z]+)\^[-]?\d', r'\1', u, 1)
+            u = re.sub(r'^([a-zA-Z]+)\^[-]?\d$', r'\1', u, 1)
             if not (u in allowed_units):
                 # may be prefixed
                 if not ( (u[0] in allowed_units_prefixes) and (u[1:] in allowed_units) ):
