@@ -24,6 +24,8 @@ EGU_sub_list = {'longin', 'longout', 'ai', 'ao'}
 allowed_units = {'A', 'angstrom', 'bar', 'bit', 'byte', 'C', 'count', 'degree', 'eV', 'frame', 'hour', 'Hz', 'inch',
                  'interrupt', 'K', 'L', 'm', 'min', 'minute', 'ohm', 'Oersted', '%', 'photon', 'pixel', 'radian', 's',
                  'torr', 'step', 'T', 'V'}
+#  these are included purely for the stress rig. This set should be superseded by ticket #2237             
+allowed_units = allowed_units.union({'mm^2', 'MPa'})
 
 dbs = list()
 
