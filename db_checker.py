@@ -14,21 +14,22 @@ from collections import defaultdict
 from ignored_paths import ignored_names_paths
 
 # list of those record types that should have a EGU field
-EGU_list = {'ai', 'ao', 'calc', 'calcout', 'compress', 'dfanout', 'longin', 'longout', 'mbbo', 'mbboDirect',
-            'permissive', 'sel', 'seq', 'state', 'stringin', 'stringout', 'subArray', 'sub', 'waveform', 'archive',
-            'cpid', 'pid', 'steppermotor'}
+EGU_list = {'ai', 'ao', 'calc', 'calcout', 'compress', 'dfanout', 'longin', 'longout', 'mbbo', 
+            'mbboDirect', 'permissive', 'sel', 'seq', 'state', 'stringin', 'stringout', 'subArray', 
+            'sub', 'waveform', 'archive', 'cpid', 'pid', 'steppermotor'}
 
 EGU_sub_list = {'longin', 'longout', 'ai', 'ao'}
 
 # list of records that should has an ASG defined
 ASG_list = {'calc'}
 
-# list of the accepted units (standard prefixs to these units are also accepted and checked for below)
-allowed_units = {'A', 'angstrom', 'bar', 'bit', 'byte', 'C', 'count', 'degree', 'eV', 'frame', 'hour', 'Hz', 'inch',
-                 'interrupt', 'K', 'L', 'm', 'min', 'minute', 'ohm', 'Oersted', '%', 'photon', 'pixel', 'radian', 's',
-                 'torr', 'step', 'T', 'V'}
-#  these are included purely for the stress rig. This set should be superseded by ticket #2237             
-allowed_units = allowed_units.union({'mm^2', 'MPa'})
+# list of the accepted units. Standard prefixs to these units are also accepted and checked for below
+# but we need to allow 'cm' explicitly as itr is a non-standard unit prefix for metre
+allowed_prefixable_units = {'A', 'angstrom', 'bar', 'bit', 'byte', 'C', 'count', 'degree', 'eV', 'frame', 'hour',
+                            'Hz', 'inch', 'interrupt', 'K', 'L', 'm', 'min', 'minute', 'ohm', 'Oersted', '%',
+                            'photon', 'pixel', 'radian', 's', 'torr', 'step', 'T', 'V', 'Pa'}
+allowed_unit_prefixes = {'T', 'G', 'M', 'k', 'm', 'u', 'n', 'p', 'f'}
+allowed_non_prefixable_units = {'cm'}
 
 dbs = list()
 
@@ -134,30 +135,29 @@ class TestPVUnits(unittest.TestCase):
 
         self.assertEqual(err, 0, msg="Overly long description in project")
 
-    def allowed_unit(self, unit):
+    def allowed_unit(self, raw_unit):
         """
         This method checks that the given unit conforms to standard
         """
-        if unit in allowed_units:
-            return True
+        # expand macro $(A) to a valid unit, expand $(A=B) to B
+        processed_unit = re.sub(r'\$[({].*?=(.*)?[})]', r'\1', raw_unit)
+        processed_unit = re.sub(r'\$[({].*?[})]', 'm', processed_unit)
 
-        # otherwise check for macro
-        if "$" in unit:
-            return True
+        # split unit amalgamations and remove powers
+        units_with_powers = re.split(r'[/ ()]', processed_unit)
+        units_with_blanks = [re.sub(r'^([a-zA-Z]+)\^[-]?\d$', r'\1', u, 1) for u in units_with_powers]
+        units = filter(None, units_with_blanks)
 
-        # otherwise split unit amalgamations
-        units = re.split(r'[/ ()]', unit)
-        for u in units:
-            if not (u in allowed_units):
-                # may be to the power of
-                if not (re.match(r"\^[-]?\d", u)):
-                    # may be prefixed
-                    if not (re.match(r'T|G|M|k|m|u|n|p|f', u[0]) and u[1:] in allowed_units):
-                        # special case of cm
-                        if not u == "cm":
-                            return False
+        def is_standalone_unit(u):
+            return u in allowed_non_prefixable_units or u in allowed_prefixable_units
 
-        return True
+        def is_prefixed_unit(u):
+            return any(len(u) > len(base_unit) and
+                       u[-len(base_unit):]==base_unit and
+                       u[:-len(base_unit)] in allowed_unit_prefixes
+                       for base_unit in allowed_prefixable_units)
+
+        return all(is_standalone_unit(u) or is_prefixed_unit(u) for u in units)
 
     def test_units_valid(self):
         """
@@ -263,8 +263,8 @@ if __name__ == '__main__':
     Runs the unit tests
     """
 
-    default_dirs = [ os.path.join('..','..','..','ioc'),
-        os.path.join('..','..','..','support'), os.path.join('..','..') ]
+    default_dirs = [os.path.join('..', '..', '..', 'ioc'),
+                    os.path.join('..', '..', '..', 'support'), os.path.join('..', '..')]
 
     # Get output directory from command line arguments
     parser = argparse.ArgumentParser()
