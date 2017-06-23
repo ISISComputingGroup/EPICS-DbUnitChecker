@@ -21,7 +21,7 @@ EGU_list = {'ai', 'ao', 'calc', 'calcout', 'compress', 'dfanout', 'longin', 'lon
 EGU_sub_list = {'longin', 'longout', 'ai', 'ao'}
 
 # list of records that should has an ASG defined
-ASG_list = {'calc', 'calcout', 'transform'}
+ASG_list = {'calc'}
 
 # list of the accepted units (standard prefixs to these units are also accepted and checked for below)
 allowed_units = {'A', 'angstrom', 'bar', 'bit', 'byte', 'C', 'count', 'degree', 'eV', 'frame', 'hour', 'Hz', 'inch',
