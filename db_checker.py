@@ -95,23 +95,25 @@ class TestPVUnits(unittest.TestCase):
                         print "ERROR: Missing units on " + err_src_fmt(db, rec)
 
         self.assertEqual(err, 0, msg="Missing units on interesting PVs in project")
-		
-	def test_interest_calc_readonly(self):
-		"""
-		This method checks that interesting PVs have units
-		"""
+
+    def test_interest_calc_readonly(self):
+        """
+        This method checks that interesting PVs that are calc fields are set to
+        readonly
+        """
         err = 0
 
         for db in dbs:
             for rec in db.records:
-                if rec.is_interest() and not rec.is_disable() and (rec.get_type() in ASG_list):
+                if rec.is_interest() and (rec.get_type() in ASG_list):
                     value = rec.get_field("ASG")
 
                     if value != "READONLY":
                         err += 1
                         print "ERROR: Missing ASG on " + err_src_fmt(db, rec)
 
-        self.assertEqual(err, 0, msg="Missing ASG on interesting PVs in project")
+        self.assertEqual(err, 0, msg="Missing ASG on interesting calculation \
+                records in project")
 
     def test_desc_length(self):
         """
