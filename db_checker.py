@@ -20,6 +20,9 @@ EGU_list = {'ai', 'ao', 'calc', 'calcout', 'compress', 'dfanout', 'longin', 'lon
 
 EGU_sub_list = {'longin', 'longout', 'ai', 'ao'}
 
+# list of records that should has an ASG defined
+ASG_list = {'calc'}
+
 # list of the accepted units. Standard prefixs to these units are also accepted and checked for below
 # but we need to allow 'cm' explicitly as itr is a non-standard unit prefix for metre
 allowed_prefixable_units = {'A', 'angstrom', 'bar', 'bit', 'byte', 'C', 'count', 'degree', 'eV', 'frame', 'hour',
@@ -93,6 +96,25 @@ class TestPVUnits(unittest.TestCase):
                         print "ERROR: Missing units on " + err_src_fmt(db, rec)
 
         self.assertEqual(err, 0, msg="Missing units on interesting PVs in project")
+
+    def test_interest_calc_readonly(self):
+        """
+        This method checks that interesting PVs that are calc fields are set to
+        readonly
+        """
+        err = 0
+
+        for db in dbs:
+            for rec in db.records:
+                if rec.is_interest() and (rec.get_type() in ASG_list):
+                    value = rec.get_field("ASG")
+
+                    if value != "READONLY":
+                        err += 1
+                        print "ERROR: Missing ASG on " + err_src_fmt(db, rec)
+
+        self.assertEqual(err, 0, msg="Missing ASG on interesting calculation \
+                records in project")
 
     def test_desc_length(self):
         """
