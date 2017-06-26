@@ -15,7 +15,7 @@ record(ao, "SHOULDPASS:HASUNITS")
 	field(DESC, "test description")
 }
 
-record(calc, "SHOULDPASS:UNINTERESTINGTYPE") 
+record(stringin, "SHOULDPASS:UNINTERESTINGTYPE") 
 {
 	info(INTEREST, "HIGH")
 	field(DESC, "test description")
@@ -47,36 +47,36 @@ record(ao, "SHOULDFAIL:BADUNIT")
 
 ######  Error 4  #######
 
-record(calc, "SHOULDPASS:HASDESC") 
+record(stringin, "SHOULDPASS:HASDESC") 
 {
 	info(INTEREST, "HIGH")
 	field(DESC, "test description")
 }
 
-record(calc, "SHOULDFAIL:NODESC") 
+record(stringin, "SHOULDFAIL:NODESC") 
 {
 	info(INTEREST, "HIGH")
 }
 
-record(calc, "SHOULDPASS:NOINTEREST")
+record(stringin, "SHOULDPASS:NOINTEREST")
 {
 }
 
 ######  Error 5  #######
 
-record(calc, "SHOULDPASS:GOODPV") 
+record(stringin, "SHOULDPASS:GOODPV") 
 {
 	info(INTEREST, "HIGH")
 	field(DESC, "test description")
 }
 
-record(calc, "SHOULDFAIL:lowercase") 
+record(stringin, "SHOULDFAIL:lowercase") 
 {
 	info(INTEREST, "HIGH")
 	field(DESC, "test description")
 }
 
-record(calc, "SHOULDFAIL:b@dchars") 
+record(stringin, "SHOULDFAIL:b@dchars") 
 {
 	info(INTEREST, "HIGH")
 	field(DESC, "test description")
@@ -96,15 +96,32 @@ record(ao, "SHOULDFAIL:DUPLICATE:PINI")
 	field(PINI, 0)
 }
 
+######  Error 7  #######
+
+record(calc, "SHOULDFAIL:CALCNOREADONLY")
+{
+	info(INTEREST, "HIGH")
+	field(DESC, "test description")
+	field(EGU, "A")
+}
+
+record(ao, "SHOULDPASS:CALCWITHREADONLY")
+{
+	info(INTEREST, "HIGH")
+	field(DESC, "test description")
+	field(EGU, "A")
+	field(ASG, "READONLY")
+}
+
 ######  Warning 1  #######
 
-record(calc, "SHOULDPASS:BLANK:DESC") 
+record(stringin, "SHOULDPASS:BLANK:DESC") 
 {
 	info(INTEREST, "HIGH")
 	field(DESC, "")
 }
 
-record(calc, "SHOULDPASS:BLANK:PINI") 
+record(stringin, "SHOULDPASS:BLANK:PINI") 
 {
 	info(INTEREST, "HIGH")
 	field(DESC, "TEST")
