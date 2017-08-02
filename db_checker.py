@@ -35,10 +35,22 @@ dbs = list()
 
 
 def err_src_fmt(db, rec):
+    """
+    Create an error string for the db record and file name
+    Args:
+        db: db record that error was in
+        rec: the record the error was in
+
+    Returns: location of the error
+
+    """
     return str(rec) + " in " + str(db)
 
 
 class TestPVUnits(unittest.TestCase):
+    """
+    Test class for db records
+    """
 
     def test_multiple_pvs_warning(self):
         """
@@ -216,8 +228,8 @@ class TestPVUnits(unittest.TestCase):
             ignore = False
 
             for d in ignored_names_paths:
-                dir = os.sep + d + os.sep
-                if dir in db.directory:
+                ignored_dir = os.sep + d + os.sep
+                if ignored_dir in db.directory:
                     ignore = True
 
             if not ignore:
@@ -234,6 +246,48 @@ class TestPVUnits(unittest.TestCase):
                             err += 1
 
         self.assertEqual(err, 0, msg="PV syntax incorrect")
+
+    def test_log_info_tags(self):
+        """
+        This method checks logging records to check that logging tags are not repeated and that the period is not
+        defined in two ways.
+        """
+
+        err = 0
+        dbs_by_paths = {}
+        # group dbs by directory hopefully these are all the db records for one IOC
+        for db in dbs:
+            dbs_by_path = dbs_by_paths.get(os.path.dirname(db.directory), [])
+            dbs_by_path.append(db)
+            dbs_by_paths[db.directory] = dbs_by_path
+
+        for key, dir_dbs in dbs_by_paths.iteritems():
+            log_fields = {}
+            logging_period = None
+            for db in dir_dbs:
+                for rec in db.records:
+                    for info in rec.infos:
+
+                        info_name = info.name.lower().strip('"')
+                        if info_name.startswith("log"):
+                            previous_source = log_fields.get(info_name, None)
+                            if previous_source is not None:
+                                print "ERROR: Invalid logging config: {source} repeats the log info tag " \
+                                      "{tag} (originally in {orig})".format(source=err_src_fmt(db, rec), tag=info_name,
+                                                                            orig=err_src_fmt(*previous_source))
+                                err += 1
+                            else:
+                                log_fields[info_name] = (db, rec)
+                        if info_name == "log_period_seconds" or info_name == "log_period_pv":
+                            if logging_period is None:
+                                logging_period = (db, rec)
+                            else:
+                                print "ERROR: Invalid logging config: {source} alters the logging period type " \
+                                    "(originally in {orig})".format(source=err_src_fmt(db, rec),
+                                                                    tag=info_name, orig=err_src_fmt(*logging_period))
+                                err += 1
+
+        self.assertEqual(err, 0, msg="LOG infos repeated")
 
 
 def set_up(directories):
