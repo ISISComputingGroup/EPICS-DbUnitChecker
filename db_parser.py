@@ -15,7 +15,7 @@ def _check_string(text):
         # Data is not a string
         r = re.split('[,)]', text)
     if len(r) < 2:
-        raise Exception("Cannot parse " + text)
+        raise ValueError("Cannot parse " + text)
     return r[1]
 
 
