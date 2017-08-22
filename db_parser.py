@@ -10,10 +10,13 @@ def _check_string(text):
     quote_pos = text.find('"')
     if quote_pos < text.find(')') and quote_pos != -1:
         # Data is a string
-        return text.split('"')[1]
+        r = text.split('"')
     else:
         # Data is not a string
-        return re.split('[,)]', text)[1]
+        r = re.split('[,)]', text)
+    if len(r) < 2:
+        raise Exception("Cannot parse " + text)
+    return r[1]
 
 
 def _get_props(keyword, text):
