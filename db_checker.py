@@ -304,13 +304,12 @@ def set_up(directories):
             dbs.load_files(directory, file_type)
 
     # dbs.saveChecked()
-
     dbs = dbs.parse_files()
 
     print "Number of EPICS dbs Found: " + str(len(dbs))
 
 
-DEFAULT_DIRECTORY = '..\\..\\..\\test-reports'
+DEFAULT_DIRECTORY = os.path.join('..', '..', '..', 'test-reports')
 
 if __name__ == '__main__':
     """
@@ -330,7 +329,11 @@ if __name__ == '__main__':
     xml_dir = args.output_dir[0]
 
     # Load files
-    set_up(args.input_dir)
+    try:
+        set_up(args.input_dir)
+    except ValueError as err:
+        print(err.message)
+        sys.exit(False)
 
     # Load tests
     units_suite = unittest.TestLoader().loadTestsFromTestCase(TestPVUnits)

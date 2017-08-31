@@ -113,6 +113,15 @@ record(ao, "SHOULDPASS:CALCWITHREADONLY")
 	field(ASG, "READONLY")
 }
 
+######  Error 8  #######
+
+record(calc, "SHOULDFAIL:BROKENRECORD")
+{
+    # Uncomment the below line to check that the system 
+	# reacts appropriately to a completely broken record.
+	# field(EGU
+}
+
 ######  Warning 1  #######
 
 record(stringin, "SHOULDPASS:BLANK:DESC") 
