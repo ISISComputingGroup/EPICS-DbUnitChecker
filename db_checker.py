@@ -76,7 +76,8 @@ class TestPVUnits(unittest.TestCase):
                 fields = rec.get_field_names()
                 if len(set(fields)) != len(fields):
                     err += 1
-                    print "ERROR: Multiple of the same fields on " + err_src_fmt(db, rec)
+                    dupes = set([i for i in fields if fields.count(i) > 1])
+                    print "ERROR: Multiple of the same fields " + ','.join(dupes) + " on " + err_src_fmt(db, rec)
 
         self.assertEqual(err, 0, msg="Multiple fields on PVs in project")
 
