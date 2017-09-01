@@ -10,10 +10,13 @@ def _check_string(text):
     quote_pos = text.find('"')
     if quote_pos < text.find(')') and quote_pos != -1:
         # Data is a string
-        return text.split('"')[1]
+        r = text.split('"')
     else:
         # Data is not a string
-        return re.split('[,)]', text)[1]
+        r = re.split('[,)]', text)
+    if len(r) < 2:
+        raise ValueError("Cannot parse " + text)
+    return r[1]
 
 
 def _get_props(keyword, text):
@@ -72,11 +75,15 @@ def parse_db(db_file):
             braced_text = text[text.find('{')+1:text.find('}')]
             field_text = braced_text
 
-            # check for info field
-            infos = _get_props("info", field_text)
+            try:
+                # check for info field
+                infos = _get_props("info", field_text)
 
-            # find fields
-            fields = _get_props("field", field_text)
+                # find fields
+                fields = _get_props("field", field_text)
+            except ValueError as err:
+                raise ValueError("""Parse error while parsing PV {} in file {}
+                        Original error was: {}""".format(pv_name, db_file.get_dir(), err.message))
 
             # populate records list
             rec = Record(rec_type.strip(), pv_name, infos, fields)

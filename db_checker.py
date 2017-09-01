@@ -76,7 +76,8 @@ class TestPVUnits(unittest.TestCase):
                 fields = rec.get_field_names()
                 if len(set(fields)) != len(fields):
                     err += 1
-                    print "ERROR: Multiple of the same fields on " + err_src_fmt(db, rec)
+                    dupes = set([i for i in fields if fields.count(i) > 1])
+                    print "ERROR: Multiple of the same fields " + ','.join(dupes) + " on " + err_src_fmt(db, rec)
 
         self.assertEqual(err, 0, msg="Multiple fields on PVs in project")
 
@@ -304,13 +305,12 @@ def set_up(directories):
             dbs.load_files(directory, file_type)
 
     # dbs.saveChecked()
-
     dbs = dbs.parse_files()
 
     print "Number of EPICS dbs Found: " + str(len(dbs))
 
 
-DEFAULT_DIRECTORY = '..\\..\\..\\test-reports'
+DEFAULT_DIRECTORY = os.path.join('..', '..', '..', 'test-reports')
 
 if __name__ == '__main__':
     """
@@ -330,7 +330,11 @@ if __name__ == '__main__':
     xml_dir = args.output_dir[0]
 
     # Load files
-    set_up(args.input_dir)
+    try:
+        set_up(args.input_dir)
+    except ValueError as err:
+        print(err.message)
+        sys.exit(False)
 
     # Load tests
     units_suite = unittest.TestLoader().loadTestsFromTestCase(TestPVUnits)
