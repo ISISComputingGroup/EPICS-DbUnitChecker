@@ -13,3 +13,4 @@ runIOC.sh
 relPaths.sh
 *.py[oc]
 .project
+**/TEST-*
