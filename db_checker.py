@@ -156,9 +156,13 @@ class TestPVUnits(unittest.TestCase):
         processed_unit = re.sub(r'\$[({].*?=(.*)?[})]', r'\1', raw_unit)
         processed_unit = re.sub(r'\$[({].*?[})]', 'm', processed_unit)
 
+        # remove 1\ as this is ok as a unit as in 1\m but 1 on its own is not ok
+        processed_unit = re.sub(r'1/', '', processed_unit)
+
         # split unit amalgamations and remove powers
         units_with_powers = re.split(r'[/ ()]', processed_unit)
-        units_with_blanks = [re.sub(r'^([a-zA-Z]+)\^[-]?\d$', r'\1', u, 1) for u in units_with_powers]
+        # allow power but not negative power so m^-1. Reason is there is no latex so 1/m is much clearer here
+        units_with_blanks = [re.sub(r'^([a-zA-Z]+)\^\d$', r'\1', u, 1) for u in units_with_powers]
         units = filter(None, units_with_blanks)
 
         def is_standalone_unit(u):
@@ -166,7 +170,7 @@ class TestPVUnits(unittest.TestCase):
 
         def is_prefixed_unit(u):
             return any(len(u) > len(base_unit) and
-                       u[-len(base_unit):]==base_unit and
+                       u[-len(base_unit):] == base_unit and
                        u[:-len(base_unit)] in allowed_unit_prefixes
                        for base_unit in allowed_prefixable_units)
 
