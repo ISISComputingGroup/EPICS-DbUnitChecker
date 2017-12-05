@@ -121,3 +121,15 @@ record(ao, "SHOULDFAIL:BADUNIT:negative_power")
 	field(DESC, "prefer 1/m")
 	field(EGU, "m^-1")
 }
+
+record(ao, "SHOULDPASS:CDEG")
+{
+	field(DESC, "Used by GEMORC")
+	field(EGU, "cdeg")
+}
+
+record(ao, "SHOULDPASS:CDEG_OVER_SS")
+{
+	field(DESC, "Used by GEMORC because cdeg/s^2 too long")
+	field(EGU, "cdeg/ss")
+}
