@@ -1,6 +1,5 @@
 from os.path import join
 from db_parser import parse_db
-from ignored_paths import ignored_paths
 import os
 
 
@@ -25,41 +24,26 @@ class FileHolder:
     def __init__(self):
         self.dbs = []
 
-    def load_files(self, path, file_type):
+    def load_files(self, path, file_types):
         """
         This method will search a given directory, including all sub-directories, for files of type file_type.
         It will then attempt to determine if the files are in EPICS format.
         The method will return a list of those files suspected of being EPICS format.
         """
-
-        dbs = []
-        ignores = self.load_checked()
-
-        print("Searching for *{}".format(file_type))
-
-        # walk through all files
         for root, dirs, files in os.walk(path):
-            for f in files:
-                # find dbs but ignoring certain directories
-                if f.endswith(file_type) and not any((os.sep + x + os.sep) in root for x in ignored_paths):
-                    directory = join(root, f)
+            for f in [f for f in files if any(f.endswith(file_type) for file_type in file_types)]:
+                directory = join(root, f)
 
-                    with open(directory) as _file:
-                        text = _file.read()
+                with open(directory) as _file:
+                    text = _file.read()
 
-                    # check db is EPICS
-                    if not(text.find("record") == -1):
+                # check db is EPICS
+                if not(text.find("record") == -1):
 
-                        # check db hasn't already been checked
-                        if directory in ignores:
-                            print "same"
-                        else:
-                            # get the timestamp of the last modification on the file
-                            timestamp = os.stat(directory)[8]
+                    # get the timestamp of the last modification on the file
+                    timestamp = os.stat(directory)[8]
 
-                            dbs.append(SingleFile(directory, text, timestamp))
-
-        self.dbs.extend(dbs)
+                    self.dbs.append(SingleFile(directory, text, timestamp))
 
     def get_files(self):
         return self.dbs
