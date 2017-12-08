@@ -35,7 +35,7 @@ class FileHolder:
         dbs = []
         ignores = self.load_checked()
 
-        print "Searching for *" + file_type
+        print("Searching for *{}".format(file_type))
 
         # walk through all files
         for root, dirs, files in os.walk(path):
@@ -43,10 +43,12 @@ class FileHolder:
                 # find dbs but ignoring certain directories
                 if f.endswith(file_type) and not any((os.sep + x + os.sep) in root for x in ignored_paths):
                     directory = join(root, f)
-                    text = open(directory).read()
+
+                    with open(directory) as _file:
+                        text = _file.read()
+
                     # check db is EPICS
-                    if not(text.find("record") == -1):  # or text.find("field") == -1):
-                        # print "Found Suspected EPICS db: %s" % directory
+                    if not(text.find("record") == -1):
 
                         # check db hasn't already been checked
                         if directory in ignores:
@@ -85,4 +87,4 @@ class FileHolder:
         for db in self.dbs:
             # save in format 'directory;'
             with open("./ignore.txt", 'w') as f:
-                f.write(str(db.get_dir()) + ';')
+                f.write('{};'.format(db.get_dir()))
