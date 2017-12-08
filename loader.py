@@ -11,6 +11,7 @@ DIRECTORIES_TO_ALWAYS_IGNORE = [
     "lib",
     "include",
     ".project",
+    "areaDetector",  # Has some huge DBs which take forever to parse.
 ]
 
 
@@ -42,9 +43,10 @@ class FileHolder:
         The method will return a list of those files suspected of being EPICS format.
         """
         for root, dirs, files in os.walk(os.path.normpath(path)):
+            dirs[:] = [d for d in dirs if d not in DIRECTORIES_TO_ALWAYS_IGNORE]
 
             for f in [f for f in files if any(f.endswith(file_type) for file_type in file_types)]:
-                filename = join(root, f)
+                filename = os.path.abspath(join(root, f))
 
                 with open(filename) as _file:
                     text = _file.read()
@@ -64,7 +66,8 @@ class FileHolder:
         """
         Method that stores all the records from all found files and returns a list of them
         """
-        return [parse_db(db) for db in self.dbs]
+        for db in self.dbs:
+            yield parse_db(db)
 
     def load_checked(self):
         """
