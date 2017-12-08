@@ -3,6 +3,17 @@ from db_parser import parse_db
 import os
 
 
+DIRECTORIES_TO_ALWAYS_IGNORE = [
+    ".git",
+    "O.Common",
+    "O.windows-x64",
+    "bin",
+    "lib",
+    "include",
+    ".project",
+]
+
+
 class SingleFile:
     def __init__(self, directory, text, timestamp):
         self.directory = directory
@@ -30,20 +41,21 @@ class FileHolder:
         It will then attempt to determine if the files are in EPICS format.
         The method will return a list of those files suspected of being EPICS format.
         """
-        for root, dirs, files in os.walk(path):
-            for f in [f for f in files if any(f.endswith(file_type) for file_type in file_types)]:
-                directory = join(root, f)
+        for root, dirs, files in os.walk(os.path.normpath(path)):
 
-                with open(directory) as _file:
+            for f in [f for f in files if any(f.endswith(file_type) for file_type in file_types)]:
+                filename = join(root, f)
+
+                with open(filename) as _file:
                     text = _file.read()
 
                 # check db is EPICS
                 if not(text.find("record") == -1):
 
                     # get the timestamp of the last modification on the file
-                    timestamp = os.stat(directory)[8]
+                    timestamp = os.stat(filename)[8]
 
-                    self.dbs.append(SingleFile(directory, text, timestamp))
+                    self.dbs.append(SingleFile(filename, text, timestamp))
 
     def get_files(self):
         return self.dbs

@@ -4,7 +4,6 @@ and field data into python classes. Arrays of Record instances can then be analy
 to find records that lack specific fields etc.
 """
 import unittest
-from unittest import skip
 
 from loader import FileHolder
 import xmlrunner
@@ -33,17 +32,20 @@ allowed_unit_prefixes = {'T', 'G', 'M', 'k', 'm', 'u', 'n', 'p', 'f'}
 allowed_non_prefixable_units = {'cm'}
 
 
-def err_src_fmt(db, rec):
+def ignore(dbs, message="Skipped"):
     """
-    Create an error string for the db record and file name
-    Args:
-        db: db record that error was in
-        rec: the record the error was in
-
-    Returns: location of the error
-
+    Decorator to skip tests on certain DBs
+    :param dbs: DBs to skip on
+    :param message: skip message
     """
-    return str(rec) + " in " + str(db)
+    def decorator(func):
+        def wrapper(self, *args, **kwargs):
+            if any(db in self.db.directory for db in dbs):
+                self.skipTest(message)
+            func(self, *args, **kwargs)
+
+        return wrapper
+    return decorator
 
 
 class TestPVUnits(unittest.TestCase):
@@ -53,28 +55,34 @@ class TestPVUnits(unittest.TestCase):
 
     def __init__(self, methodName, db=None):
         super(TestPVUnits, self).__init__(methodName=methodName)
-
         self.db = db
 
-    @skip("Multiple PVs not an error by default")
+    @ignore(["superlogics.db", "lakeshore336.db", "motor.db"])
     def test_multiple_pvs_warning(self):
         """
         This method warns if there are multiple PVs with the same name in the project
         """
+        err = 0
+        failure_message = "Multiple fields on PVs in {}\n".format(self.db.directory)
+
         dups = defaultdict(list)  # Makes a dict of lists
         for rec in self.db.records:
             dups[str(rec.pv)].append(rec)
 
         for k, v in dups.iteritems():
             if len(v) > 1:
-                print "WARNING: Multiple instances of " + err_src_fmt(db, k)
+                err += 1
+                failure_message += "   -> Multiple instances of {}\n".format(k)
 
+        self.assertEqual(err, 0, msg=failure_message)
+
+    @ignore(["isActiveEurothrm.db"], "Mutually exclusive macro guards prevent this from ever happening")
     def test_multiple_properties_on_pvs(self):
         """
         This method checks that no PVs have duplicate fields
         """
         err = 0
-        failure_message = "Multiple fields on PVs in in {}\n".format(self.db.directory)
+        failure_message = "Multiple fields on PVs in {}\n".format(self.db.directory)
 
         for rec in self.db.records:
             fields = rec.get_field_names()
@@ -84,18 +92,6 @@ class TestPVUnits(unittest.TestCase):
                 failure_message += "   -> Multiple instances of fields {} on {}\n".format(','.join(dupes), rec)
 
         self.assertEqual(err, 0, msg=failure_message)
-
-    @skip("Blank fields are not an error by default")
-    def test_interest_populated_fields_warning(self):
-        """
-        This method warns if interesting PVs don't have all fields populated
-        """
-        for rec in self.db.records:
-            if rec.is_interest():
-                fields_values = rec.get_field_values()
-
-                if None in fields_values or "" in fields_values:
-                    print "WARNING: Blank fields on " + err_src_fmt(self.db, rec)
 
     def test_interest_units(self):
         """
@@ -210,6 +206,7 @@ class TestPVUnits(unittest.TestCase):
 
         self.assertEqual(err, 0, msg=failure_message)
 
+    @ignore(["HVCAENx527ch.db"], "These are externally provided DBs")
     def test_interest_syntax(self):
         """
         This method tests that all interesting PVs that are not in the names exception list are capitalised and
@@ -237,7 +234,6 @@ class TestPVUnits(unittest.TestCase):
         This method checks logging records to check that logging tags are not repeated and that the period is not
         defined in two ways.
         """
-
         err = 0
         failure_message = "Duplicated log infos in {}".format(self.db.directory)
 
@@ -259,10 +255,7 @@ class TestPVUnits(unittest.TestCase):
                             previous_source = log_fields.get(info_name, None)
                             if previous_source is not None:
                                 failure_message += "   -> Invalid logging config: {source} repeats the log info tag " \
-                                      "{tag} (originally in {orig})\n"\
-                                      .format(source=err_src_fmt(db, rec),
-                                              tag=info_name,
-                                              orig=err_src_fmt(*previous_source))
+                                      "{tag}\n".format(source=rec, tag=info_name)
                                 err += 1
                             else:
                                 log_fields[info_name] = (db, rec)
@@ -272,10 +265,7 @@ class TestPVUnits(unittest.TestCase):
                                 logging_period = (db, rec)
                             else:
                                 failure_message += "   -> Invalid logging config: {source} alters the logging period " \
-                                                   "type (originally in {orig})\n"\
-                                                   .format(source=err_src_fmt(db, rec),
-                                                           tag=info_name,
-                                                           orig=err_src_fmt(*logging_period))
+                                                   "type\n".format(source=rec, tag=info_name)
                                 err += 1
 
         self.assertEqual(err, 0, msg=failure_message)
