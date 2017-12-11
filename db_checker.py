@@ -286,9 +286,8 @@ class TestPVUnits(unittest.TestCase):
 
 def set_up(directories):
     """
-    This set up method loads and parses the db and template files prior to testing.
+    This set up method generates parsed DB and template files.
     """
-
     for directory in directories:
         for parsed_file in parsed_files(directory, ['.db', '.template']):
             yield parsed_file
