@@ -7,7 +7,7 @@ import unittest
 
 import time
 
-from loader import FileHolder
+from loader import parsed_files
 import xmlrunner
 import argparse
 import re
@@ -36,8 +36,8 @@ allowed_non_prefixable_units = {'cm'}
 
 def ignore(dbs, message="Skipped"):
     """
-    Decorator to skip tests on certain DBs
-    :param dbs: DBs to skip on
+    Decorator to skip tests on certain DBs or paths
+    :param dbs: DBs or paths to skip on.
     :param message: skip message
     """
     def decorator(func):
@@ -288,12 +288,10 @@ def set_up(directories):
     """
     This set up method loads and parses the db and template files prior to testing.
     """
-    dbs = FileHolder()
 
     for directory in directories:
-        dbs.load_files(directory, ['.db', '.template'])
-
-    return dbs.parse_files()
+        for parsed_file in parsed_files(directory, ['.db', '.template']):
+            yield parsed_file
 
 
 DEFAULT_DIRECTORY = os.path.join('..', '..', '..', 'test-reports')
