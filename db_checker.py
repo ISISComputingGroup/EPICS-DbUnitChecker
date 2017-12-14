@@ -31,7 +31,13 @@ allowed_prefixable_units = {'A', 'angstrom', 'bar', 'bit', 'byte', 'C', 'count',
                             'Hz', 'inch', 'interrupt', 'K', 'L', 'm', 'min', 'minute', 'ohm', 'Oersted', '%',
                             'photon', 'pixel', 'radian', 's', 'torr', 'step', 'T', 'V', 'Pa', 'deg', 'stp', 'W'}
 allowed_unit_prefixes = {'T', 'G', 'M', 'k', 'm', 'u', 'n', 'p', 'f'}
-allowed_non_prefixable_units = {'cm'}
+allowed_non_prefixable_units = {
+    'cm',
+    'cdeg'
+}
+allowed_standalone_units = {
+    'cdeg/ss',  # Needed by the GORC. Latter is a special case because cdeg/s^2 too long}
+}
 
 
 def ignore(dbs, message="Skipped"):
@@ -160,6 +166,9 @@ class TestPVUnits(unittest.TestCase):
         """
         This method checks that the given unit conforms to standard
         """
+        if raw_unit in allowed_standalone_units:
+            return True
+
         # expand macro $(A) to a valid unit, expand $(A=B) to B
         processed_unit = re.sub(r'\$[({].*?=(.*)?[})]', r'\1', raw_unit)
         processed_unit = re.sub(r'\$[({].*?[})]', 'm', processed_unit)
