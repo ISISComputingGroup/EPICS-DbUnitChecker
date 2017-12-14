@@ -40,11 +40,12 @@ allowed_standalone_units = {
 }
 
 
-def ignore(dbs, message="Skipped"):
+def ignore(dbs, message):
     """
     Decorator to skip tests on certain DBs or paths
-    :param dbs: DBs or paths to skip on.
-    :param message: skip message
+    Args:
+        dbs: DBs or paths to skip on.
+        message: skip message
     """
     def decorator(func):
         def wrapper(self, *args, **kwargs):
@@ -64,9 +65,9 @@ class TestPVUnits(unittest.TestCase):
         super(TestPVUnits, self).__init__(methodName=methodName)
         self.db = db
 
-    @ignore(["superlogics.db", "lakeshore336.db", "motor.db"])
+    @ignore(["superlogics.db", "lakeshore336.db", "motor.db"], "Historical failures have not been addressed")
     @ignore(["EPICS_V4"], "Vendor-supplied DBs")
-    @ignore(["DbUnitChecker"], "DB unit checker contains tests that should fail.")
+    @ignore(["DbUnitChecker"], "DB unit checker contains tests that deliberately fail, used as integration tests")
     def test_multiple_pvs_warning(self):
         """
         This method warns if there are multiple PVs with the same name in the project
@@ -78,7 +79,7 @@ class TestPVUnits(unittest.TestCase):
         for rec in self.db.records:
             dups[str(rec.pv)].append(rec)
 
-        for k, v in dups.iteritems():
+        for k, v in dups.items():
             if len(v) > 1:
                 err += 1
                 failure_message += "   -> Multiple instances of {}\n".format(k)
@@ -87,7 +88,7 @@ class TestPVUnits(unittest.TestCase):
 
     @ignore(["isActiveEurothrm.db"], "Mutually exclusive macro guards prevent this from ever happening")
     @ignore(["optics", "danfysikMps8000"], "Vendor-supplied DBs")
-    @ignore(["DbUnitChecker"], "DB unit checker contains tests that should fail.")
+    @ignore(["DbUnitChecker"], "DB unit checker contains tests that deliberately fail, used as integration tests")
     def test_multiple_properties_on_pvs(self):
         """
         This method checks that no PVs have duplicate fields
@@ -104,7 +105,7 @@ class TestPVUnits(unittest.TestCase):
 
         self.assertEqual(err, 0, msg=failure_message)
 
-    @ignore(["DbUnitChecker"], "DB unit checker contains tests that should fail.")
+    @ignore(["DbUnitChecker"], "DB unit checker contains tests that deliberately fail, used as integration tests")
     def test_interest_units(self):
         """
         This method checks that interesting PVs have units
@@ -122,7 +123,7 @@ class TestPVUnits(unittest.TestCase):
 
         self.assertEqual(err, 0, msg=failure_message)
 
-    @ignore(["DbUnitChecker"], "DB unit checker contains tests that should fail.")
+    @ignore(["DbUnitChecker"], "DB unit checker contains tests that deliberately fail, used as integration tests")
     def test_interest_calc_readonly(self):
         """
         This method checks that interesting PVs that are calc fields are set to
@@ -141,7 +142,7 @@ class TestPVUnits(unittest.TestCase):
 
         self.assertEqual(err, 0, msg=failure_message)
 
-    @ignore(["DbUnitChecker"], "DB unit checker contains tests that should fail.")
+    @ignore(["DbUnitChecker"], "DB unit checker contains tests that deliberately fail, used as integration tests")
     def test_desc_length(self):
         """
         This method checks that the description length on all PVs is no longer than 40 chars
@@ -194,7 +195,7 @@ class TestPVUnits(unittest.TestCase):
         return all(is_standalone_unit(u) or is_prefixed_unit(u) for u in units)
 
     @ignore(["optics", "CALab", "DbUnitChecker", "danfysikMps8000", "EPICS_V4"], "Vendor-supplied DBs")
-    @ignore(["DbUnitChecker"], "DB unit checker contains tests that should fail.")
+    @ignore(["DbUnitChecker"], "DB unit checker contains tests that deliberately fail, used as integration tests")
     def test_units_valid(self):
         """
         This method loops through all found records and finds the unique units. It then checks these units are standard
@@ -211,7 +212,7 @@ class TestPVUnits(unittest.TestCase):
 
         self.assertEqual(err, 0, msg=failure_message)
 
-    @ignore(["DbUnitChecker"], "DB unit checker contains tests that should fail.")
+    @ignore(["DbUnitChecker"], "DB unit checker contains tests that deliberately fail, used as integration tests")
     def test_interest_descriptions(self):
         """
         This method checks all records marked as interesting for description fields
@@ -227,7 +228,7 @@ class TestPVUnits(unittest.TestCase):
         self.assertEqual(err, 0, msg=failure_message)
 
     @ignore(["HVCAENx527ch.db"], "These are externally provided DBs")
-    @ignore(["DbUnitChecker"], "DB unit checker contains tests that should fail.")
+    @ignore(["DbUnitChecker"], "DB unit checker contains tests that deliberately fail, used as integration tests")
     def test_interest_syntax(self):
         """
         This method tests that all interesting PVs that are not in the names exception list are capitalised and
@@ -250,7 +251,7 @@ class TestPVUnits(unittest.TestCase):
 
         self.assertEqual(err, 0, msg=failure_message)
 
-    @ignore(["DbUnitChecker"], "DB unit checker contains tests that should fail.")
+    @ignore(["DbUnitChecker"], "DB unit checker contains tests that deliberately fail, used as integration tests")
     def test_log_info_tags(self):
         """
         This method checks logging records to check that logging tags are not repeated and that the period is not
@@ -321,18 +322,21 @@ if __name__ == '__main__':
     args = parser.parse_args()
     xml_dir = args.output_dir[0]
 
-    print "\n\n------ BEGINNING PV UNIT TESTS ------"
+
     start = time.time()
 
     loader = unittest.TestLoader()
     suite = unittest.TestSuite()
 
+    print("Scanning files...")
     for db in set_up(args.input_dir):
         suite.addTests([TestPVUnits(test, db) for test in loader.getTestCaseNames(TestPVUnits)])
 
-    success = xmlrunner.XMLTestRunner(output=xml_dir, verbosity=1).run(suite).wasSuccessful()
+    print("Beginning PV unit tests...")
 
-    print "------ PV UNIT TESTS COMPLETE (Took {:.3f} sec) ------\n\n".format(time.time() - start)
+    success = xmlrunner.XMLTestRunner(output=xml_dir).run(suite).wasSuccessful()
+
+    print("PV unit tests complete (Took {:.3f} sec)".format(time.time() - start))
 
     # Return failure exit code if a test failed
     sys.exit(not success)

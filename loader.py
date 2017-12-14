@@ -36,11 +36,14 @@ def _load_files(path, file_types):
     This method will search a given directory, including all sub-directories, for files of type in file_types.
     It will then attempt to determine if the files are in EPICS format.
 
-    :param path: the path to load DBs from
-    :param file_types: a list of file extensions that are expected
-    :yields files that are in EPICS format
+    Args:
+        path: the path to load DBs from
+        file_types: a list of file extensions that are expected
+
+    Yields:
+        files that are in EPICS format
     """
-    for root, dirs, files in os.walk(os.path.normpath(path), topdown=True):
+    for root, dirs, files in os.walk(os.path.normpath(path)):
         dirs[:] = [d for d in dirs if d not in DIRECTORIES_TO_ALWAYS_IGNORE]
 
         for f in [f for f in files if any(f.endswith(file_type) for file_type in file_types)]:
@@ -61,8 +64,13 @@ def _load_files(path, file_types):
 def parsed_files(path, file_types):
     """
     Generator of parsed DB files.
-    :param path: the path to load DBs from
-    :param file_types: a list of file extensions that are expected
+
+    Args:
+        path: the path to load DBs from
+        file_types: a list of file extensions that are expected
+
+    Yields:
+        parsed db files
     """
     for db in _load_files(path, file_types):
         try:
