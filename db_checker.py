@@ -56,6 +56,20 @@ def ignore(dbs, message):
     return decorator
 
 
+def build_failure_message(basemessage, submessages):
+    """
+    Builds a test failure message from a common descriptor and a list of individual failures.
+
+    Args:
+        basemessage: common base message
+        submessages: list of submessages
+
+    Returns:
+        A formatted string containing the base and sub messages.
+    """
+    return "{}\n{}".format(basemessage, "\n".join("   -> " + s for s in submessages))
+
+
 class TestPVUnits(unittest.TestCase):
     """
     Test class for db records
@@ -72,8 +86,7 @@ class TestPVUnits(unittest.TestCase):
         """
         This method warns if there are multiple PVs with the same name in the project
         """
-        err = 0
-        failure_message = "Multiple fields on PVs in {}\n".format(self.db.directory)
+        failures = []
 
         dups = defaultdict(list)  # Makes a dict of lists
         for rec in self.db.records:
@@ -81,10 +94,10 @@ class TestPVUnits(unittest.TestCase):
 
         for k, v in dups.items():
             if len(v) > 1:
-                err += 1
-                failure_message += "   -> Multiple instances of {}\n".format(k)
+                failures.append("Multiple instances of {}".format(k))
 
-        self.assertEqual(err, 0, msg=failure_message)
+        self.assertEqual(len(failures), 0, msg=build_failure_message(
+            "Multiple fields on PVs in {}".format(self.db.directory), failures))
 
     @ignore(["isActiveEurothrm.db"], "Mutually exclusive macro guards prevent this from ever happening")
     @ignore(["optics", "danfysikMps8000"], "Vendor-supplied DBs")
@@ -93,35 +106,33 @@ class TestPVUnits(unittest.TestCase):
         """
         This method checks that no PVs have duplicate fields
         """
-        err = 0
-        failure_message = "Multiple fields on PVs in {}\n".format(self.db.directory)
+        failures = []
 
         for rec in self.db.records:
             fields = rec.get_field_names()
             if len(set(fields)) != len(fields):
-                err += 1
                 dupes = set([i for i in fields if fields.count(i) > 1])
-                failure_message += "   -> Multiple instances of fields {} on {}\n".format(','.join(dupes), rec)
+                failures.append("Multiple instances of fields {} on {}".format(','.join(dupes), rec))
 
-        self.assertEqual(err, 0, msg=failure_message)
+        self.assertEqual(len(failures), 0, msg=build_failure_message(
+            "Multiple fields on PVs in {}".format(self.db.directory), failures))
 
     @ignore(["DbUnitChecker"], "DB unit checker contains tests that deliberately fail, used as integration tests")
     def test_interest_units(self):
         """
         This method checks that interesting PVs have units
         """
-        err = 0
-        failure_message = "Interesting PVs with no units in {}\n".format(self.db.directory)
+        failures = []
 
         for rec in self.db.records:
             if rec.is_interest() and not rec.is_disable() and (rec.get_type() in EGU_sub_list):
                 unit = rec.get_field("EGU")
 
                 if unit is None:
-                    err += 1
-                    failure_message += "   -> Missing units on {}\n".format(rec)
+                    failures.append("Missing units on {}".format(rec))
 
-        self.assertEqual(err, 0, msg=failure_message)
+        self.assertEqual(len(failures), 0, msg=build_failure_message(
+            "Interesting PVs with no units in {}".format(self.db.directory), failures))
 
     @ignore(["DbUnitChecker"], "DB unit checker contains tests that deliberately fail, used as integration tests")
     def test_interest_calc_readonly(self):
@@ -129,26 +140,24 @@ class TestPVUnits(unittest.TestCase):
         This method checks that interesting PVs that are calc fields are set to
         readonly
         """
-        err = 0
-        failure_message = "Writable calc records in {}\n".format(self.db.directory)
+        failures = []
 
         for rec in self.db.records:
             if rec.is_interest() and (rec.get_type() in ASG_list):
                 value = rec.get_field("ASG")
 
                 if value != "READONLY":
-                    err += 1
-                    failure_message += " Missing ASG on {}\n".format(rec)
+                    failures.append("Missing ASG on {}".format(rec))
 
-        self.assertEqual(err, 0, msg=failure_message)
+        self.assertEqual(len(failures), 0, msg=build_failure_message(
+            "Writable calc records in {}".format(self.db.directory), failures))
 
     @ignore(["DbUnitChecker"], "DB unit checker contains tests that deliberately fail, used as integration tests")
     def test_desc_length(self):
         """
         This method checks that the description length on all PVs is no longer than 40 chars
         """
-        err = 0
-        failure_message = "Description too long in {}\n".format(self.db.directory)
+        failures = []
 
         for rec in self.db.records:
             desc = rec.get_field("DESC")
@@ -158,10 +167,10 @@ class TestPVUnits(unittest.TestCase):
                 desc = re.sub(r'\$\([^)]*\)', '', desc)
 
                 if len(desc) > 40:
-                    err += 1
-                    failure_message += "   -> Description too long on {}\n".format(rec)
+                    failures.append("Description too long on {}".format(rec))
 
-        self.assertEqual(err, 0, msg=failure_message)
+        self.assertEqual(len(failures), 0, msg=build_failure_message(
+            "Description too long in {}".format(self.db.directory), failures))
 
     def allowed_unit(self, raw_unit):
         """
@@ -200,32 +209,30 @@ class TestPVUnits(unittest.TestCase):
         """
         This method loops through all found records and finds the unique units. It then checks these units are standard
         """
-        err = 0
-        failure_message = "Invalid units in {}\n".format(self.db.directory)
+        failures = []
 
         for rec in self.db.records:
             unit = rec.get_field("EGU")
 
             if unit is not None and unit != "" and not self.allowed_unit(unit):
-                err += 1
-                failure_message += "   -> Invalid unit '{}' on {}\n".format(unit, rec)
+                failures.append("Invalid unit '{}' on {}".format(unit, rec))
 
-        self.assertEqual(err, 0, msg=failure_message)
+        self.assertEqual(len(failures), 0, msg=build_failure_message(
+            "Invalid units in {}".format(self.db.directory), failures))
 
     @ignore(["DbUnitChecker"], "DB unit checker contains tests that deliberately fail, used as integration tests")
     def test_interest_descriptions(self):
         """
         This method checks all records marked as interesting for description fields
         """
-        err = 0
-        failure_message = "Missing description in {}\n".format(self.db.directory)
+        failures = []
 
         for rec in self.db.records:
             if rec.is_interest() and not rec.has_field("DESC"):
-                failure_message += "   -> Missing description on {}".format(rec)
-                err += 1
+                failures.append("Missing description on {}".format(rec))
 
-        self.assertEqual(err, 0, msg=failure_message)
+        self.assertEqual(len(failures), 0, msg=build_failure_message(
+            "Missing description in {}".format(self.db.directory), failures))
 
     @ignore(["HVCAENx527ch.db"], "These are externally provided DBs")
     @ignore(["DbUnitChecker"], "DB unit checker contains tests that deliberately fail, used as integration tests")
@@ -234,8 +241,7 @@ class TestPVUnits(unittest.TestCase):
         This method tests that all interesting PVs that are not in the names exception list are capitalised and
         contain only A-Z 0-9 _ :
         """
-        err = 0
-        failure_message = "PV syntax incorrect in {}\n".format(self.db.directory)
+        failures = []
 
         for rec in self.db.records:
             if rec.is_interest():
@@ -243,13 +249,12 @@ class TestPVUnits(unittest.TestCase):
                 mypv = re.sub(r'\$\(.*\)', '', rec.pv)  # remove macros
                 se = re.search(r'[^\w:]', mypv)
                 if se is not None:
-                    failure_message += "   -> {} contains illegal characters\n".format(rec)
-                    err += 1
+                    failures.append("{} contains illegal characters".format(rec))
                 if len(mypv) > 0 and not mypv.isupper():
-                    failure_message += "   -> {} should be upper-case\n".format(rec)
-                    err += 1
+                    failures.append("{} should be upper-case".format(rec))
 
-        self.assertEqual(err, 0, msg=failure_message)
+        self.assertEqual(len(failures), 0, msg=build_failure_message(
+            "PV syntax incorrect in {}".format(self.db.directory), failures))
 
     @ignore(["DbUnitChecker"], "DB unit checker contains tests that deliberately fail, used as integration tests")
     def test_log_info_tags(self):
@@ -257,8 +262,7 @@ class TestPVUnits(unittest.TestCase):
         This method checks logging records to check that logging tags are not repeated and that the period is not
         defined in two ways.
         """
-        err = 0
-        failure_message = "Duplicated log infos in {}".format(self.db.directory)
+        failures = []
 
         dbs_by_paths = {}
         # group dbs by directory hopefully these are all the db records for one IOC
@@ -277,9 +281,8 @@ class TestPVUnits(unittest.TestCase):
                         if info_name.startswith("log"):
                             previous_source = log_fields.get(info_name, None)
                             if previous_source is not None:
-                                failure_message += "   -> Invalid logging config: {source} repeats the log info tag " \
-                                      "{tag}\n".format(source=rec, tag=info_name)
-                                err += 1
+                                failures.append("Invalid logging config: {source} repeats the log info tag " \
+                                                "{tag}".format(source=rec, tag=info_name))
                             else:
                                 log_fields[info_name] = (db, rec)
 
@@ -287,11 +290,11 @@ class TestPVUnits(unittest.TestCase):
                             if logging_period is None:
                                 logging_period = (db, rec)
                             else:
-                                failure_message += "   -> Invalid logging config: {source} alters the logging period " \
-                                                   "type\n".format(source=rec, tag=info_name)
-                                err += 1
+                                failures.append("Invalid logging config: {source} alters the logging period " \
+                                                "type".format(source=rec, tag=info_name))
 
-        self.assertEqual(err, 0, msg=failure_message)
+        self.assertEqual(len(failures), 0, msg=build_failure_message(
+            "Duplicated log infos in {}".format(self.db.directory), failures))
 
 
 def set_up(directories):
@@ -321,7 +324,6 @@ if __name__ == '__main__':
                         help='The input directories to look for db files within')
     args = parser.parse_args()
     xml_dir = args.output_dir[0]
-
 
     start = time.time()
 
