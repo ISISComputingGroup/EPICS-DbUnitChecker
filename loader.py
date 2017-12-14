@@ -1,7 +1,18 @@
 from os.path import join
 from db_parser import parse_db
-from ignored_paths import ignored_paths
 import os
+
+
+DIRECTORIES_TO_ALWAYS_IGNORE = [
+    ".git",
+    "O.Common",
+    "O.windows-x64",
+    "bin",
+    "lib",
+    "include",
+    ".project",
+    "areaDetector",  # Has some huge DBs which take forever to parse.
+]
 
 
 class SingleFile:
@@ -20,69 +31,49 @@ class SingleFile:
         return self.text
 
 
-class FileHolder:
+def _load_files(path, file_types):
+    """
+    This method will search a given directory, including all sub-directories, for files of type in file_types.
+    It will then attempt to determine if the files are in EPICS format.
 
-    def __init__(self):
-        self.dbs = []
+    Args:
+        path: the path to load DBs from
+        file_types: a list of file extensions that are expected
 
-    def load_files(self, path, file_type):
-        """
-        This method will search a given directory, including all sub-directories, for files of type file_type.
-        It will then attempt to determine if the files are in EPICS format.
-        The method will return a list of those files suspected of being EPICS format.
-        """
+    Yields:
+        files that are in EPICS format
+    """
+    for root, dirs, files in os.walk(os.path.normpath(path)):
+        dirs[:] = [d for d in dirs if d not in DIRECTORIES_TO_ALWAYS_IGNORE]
 
-        dbs = []
-        ignores = self.load_checked()
+        for f in [f for f in files if any(f.endswith(file_type) for file_type in file_types)]:
+            filename = os.path.abspath(join(root, f))
 
-        print "Searching for *" + file_type
+            with open(filename) as _file:
+                text = _file.read()
 
-        # walk through all files
-        for root, dirs, files in os.walk(path):
-            for f in files:
-                # find dbs but ignoring certain directories
-                if f.endswith(file_type) and not any((os.sep + x + os.sep) in root for x in ignored_paths):
-                    directory = join(root, f)
-                    text = open(directory).read()
-                    # check db is EPICS
-                    if not(text.find("record") == -1):  # or text.find("field") == -1):
-                        # print "Found Suspected EPICS db: %s" % directory
+            # check db is EPICS
+            if not(text.find("record") == -1):
 
-                        # check db hasn't already been checked
-                        if directory in ignores:
-                            print "same"
-                        else:
-                            # get the timestamp of the last modification on the file
-                            timestamp = os.stat(directory)[8]
+                # get the timestamp of the last modification on the file
+                timestamp = os.stat(filename)[8]
 
-                            dbs.append(SingleFile(directory, text, timestamp))
+                yield SingleFile(filename, text, timestamp)
 
-        self.dbs.extend(dbs)
 
-    def get_files(self):
-        return self.dbs
+def parsed_files(path, file_types):
+    """
+    Generator of parsed DB files.
 
-    def parse_files(self):
-        """
-        Method that stores all the records from all found files and returns a list of them
-        """
-        return [parse_db(db) for db in self.dbs]
+    Args:
+        path: the path to load DBs from
+        file_types: a list of file extensions that are expected
 
-    def load_checked(self):
-        """
-        This method will load a list of all the dbs checked to be good by the program
-        """
-        good_dirs = []
-        if os.path.exists("./ignore.txt"):
-            with open("./ignore.txt", 'r') as f:
-                good_dirs = f.read().split(';')
-        return good_dirs
-
-    def save_checked(self):
-        """
-        This method will save a list of all the dbs checked to be good by the program
-        """
-        for db in self.dbs:
-            # save in format 'directory;'
-            with open("./ignore.txt", 'w') as f:
-                f.write(str(db.get_dir()) + ';')
+    Yields:
+        parsed db files
+    """
+    for db in _load_files(path, file_types):
+        try:
+            yield parse_db(db)
+        except ValueError as e:
+            raise ValueError("Failed to parse DB '{}'. Exception was: {}".format(db.directory, e))
