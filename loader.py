@@ -75,5 +75,5 @@ def parsed_files(path, file_types):
     for db in _load_files(path, file_types):
         try:
             yield parse_db(db)
-        except ValueError as e:
+        except (ValueError, LookupError) as e:
             raise ValueError("Failed to parse DB '{}'. Exception was: {}".format(db.directory, e))
