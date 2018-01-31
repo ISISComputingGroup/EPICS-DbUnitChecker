@@ -205,6 +205,7 @@ class TestPVUnits(unittest.TestCase):
 
     @ignore(["optics", "CALab", "DbUnitChecker", "danfysikMps8000", "EPICS_V4"], "Vendor-supplied DBs")
     @ignore(["DbUnitChecker"], "DB unit checker contains tests that deliberately fail, used as integration tests")
+    @ignore(["ether_ip"], "Vendor-supplied DBs")
     def test_units_valid(self):
         """
         This method loops through all found records and finds the unique units. It then checks these units are standard
