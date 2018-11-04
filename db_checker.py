@@ -27,7 +27,7 @@ ASG_list = {'calc'}
 
 # list of the accepted units. Standard prefixs to these units are also accepted and checked for below
 # but we need to allow 'cm' explicitly as itr is a non-standard unit prefix for metre
-allowed_prefixable_units = {'A', 'angstrom', 'bar', 'B', 'bit', 'byte', 'C', 'count', 'degree', 'eV', 'frame', 'g', 'G',
+allowed_prefixable_units = {'A', 'angstrom', 'au', 'bar', 'B', 'bit', 'byte', 'C', 'count', 'degree', 'eV', 'frame', 'g', 'G',
                             'hour', 'Hz', 'H', 'inch', 'interrupt', 'K', 'L', 'm', 'min', 'minute', 'ohm', 'Oersted',
                             '%', 'photon', 'pixel', 'radian', 's', 'torr', 'step', 'T', 'V', 'Pa', 'deg', 'stp', 'W'}
 allowed_unit_prefixes = {'T', 'G', 'M', 'k', 'm', 'u', 'n', 'p', 'f'}
@@ -192,7 +192,7 @@ class TestPVUnits(unittest.TestCase):
         # split unit amalgamations and remove powers
         units_with_powers = re.split(r'[/ ()]', processed_unit)
         # allow power but not negative power so m^-1. Reason is there is no latex so 1/m is much clearer here
-        units_with_blanks = [re.sub(r'^([a-zA-Z]+)\^\d$', r'\1', u, 1) for u in units_with_powers]
+        units_with_blanks = [re.sub(r'^([a-zA-Z]+)\^[-]?\d$', r'\1', u, 1) for u in units_with_powers]
         units = filter(None, units_with_blanks)
 
         def is_standalone_unit(u):
