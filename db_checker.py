@@ -99,7 +99,7 @@ class TestPVUnits(unittest.TestCase):
         self.assertEqual(len(failures), 0, msg=build_failure_message(
             "Multiple fields on PVs in {}".format(self.db.directory), failures))
 
-    @ignore(["moxa1210_aliases.db"], "Mutually exclusive guards prevent this from ever happening")
+    @ignore(["moxa12XX_aliases.db"], "Mutually exclusive guards prevent this from ever happening")
     @ignore(["separator_voltage.db"], "Mutually exclusive guards prevent this from ever happening")
     @ignore(["separator_current.db"], "Mutually exclusive guards prevent this from ever happening")
     @ignore(["isActiveEurothrm.db"], "Mutually exclusive macro guards prevent this from ever happening")
