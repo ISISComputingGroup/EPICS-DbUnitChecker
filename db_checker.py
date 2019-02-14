@@ -207,7 +207,7 @@ class TestPVUnits(unittest.TestCase):
 
         return all(is_standalone_unit(u) or is_prefixed_unit(u) for u in units)
 
-    @ignore(["optics", "CALab", "DbUnitChecker", "danfysikMps8000", "EPICS_V4"], "Vendor-supplied DBs")
+    @ignore(["optics", "CALab", "DbUnitChecker", "danfysikMps8000", "EPICS_V4", "EdwardsNextTurbo"], "Vendor-supplied DBs")
     @ignore(["DbUnitChecker"], "DB unit checker contains tests that deliberately fail, used as integration tests")
     @ignore(["ether_ip"], "Vendor-supplied DBs")
     def test_units_valid(self):
