@@ -133,3 +133,15 @@ record(ao, "SHOULDPASS:CDEG_OVER_SS")
 	field(DESC, "Used by GEMORC because cdeg/s^2 too long")
 	field(EGU, "cdeg/ss")
 }
+
+record(ao, "SHOULDPASS:NEWTONS:N")
+{
+    field(DESC, "Newtons should be a valid EGU")
+    field(EGU, "N"
+}
+
+record(ao, "SHOULDPASS:MILINEWTONS")
+{
+    field(DESC, "Should be able to prefix Newtons")
+    field(EGU, "mN"
+}
