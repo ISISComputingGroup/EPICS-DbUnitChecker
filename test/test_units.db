@@ -137,11 +137,11 @@ record(ao, "SHOULDPASS:CDEG_OVER_SS")
 record(ao, "SHOULDPASS:NEWTONS:N")
 {
     field(DESC, "Newtons should be a valid EGU")
-    field(EGU, "N"
+    field(EGU, "N")
 }
 
 record(ao, "SHOULDPASS:MILINEWTONS")
 {
     field(DESC, "Should be able to prefix Newtons")
-    field(EGU, "mN"
+    field(EGU, "mN")
 }
