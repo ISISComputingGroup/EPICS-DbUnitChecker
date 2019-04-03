@@ -107,6 +107,7 @@ class TestPVUnits(unittest.TestCase):
     @ignore(["optics", "danfysikMps8000"], "Vendor-supplied DBs")
     @ignore(["DbUnitChecker"], "DB unit checker contains tests that deliberately fail, used as integration tests")
     @ignore(["ips.db"], "The word 'field' used repeatedly in the DB to refer to a magnetic field confuses the parser, which tries to interpret them as epics field declarations.")
+    @ignore(["Mezflipr_common.db"], "Complex macro guards cannot be understood by DbUnitChecker.")
     def test_multiple_properties_on_pvs(self):
         """
         This method checks that no PVs have duplicate fields
