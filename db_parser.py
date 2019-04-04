@@ -42,6 +42,11 @@ def _get_props(keyword, text):
 
     return fields
 
+def is_comment(line):
+    if  (line.find('#') != -1):
+        temp = line.split('#')[1]
+        if (temp.find('"') == -1):
+            print(temp)
 
 def parse_db(db_file):
         """
@@ -50,14 +55,24 @@ def parse_db(db_file):
         """
 
         text = ""
+        test_text = ""
         temp_text = db_file.get_text()
 
         # remove comments but keep any # that appear in strings (may be able to do better in regex?)
         for line in iter(temp_text.splitlines()):
-            if not (line.find('#') != -1 and (line.find('#') < line.find('"') or line.find('"') == -1)):
-                # is not a comment so add to be parsed
+            if  (line.find('#') != -1):
+                comment = line.split('#')[1]
+                real_text = line.split('#')[0]
+                if (comment.find('"') == -1): # if not inside a string.
+                    text += real_text + '\n'
+            else:
                 text += line + '\n'
 
+            """
+            if  not (line.find('#') != -1 and (line.find('#') < line.find('"') or line.find('"') == -1)):
+                # is not a comment so add to be parsed
+                text += line + '\n'
+            """
         recs = []
 
         # cut out the text before the first record

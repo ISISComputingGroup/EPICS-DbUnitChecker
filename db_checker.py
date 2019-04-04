@@ -81,7 +81,7 @@ class TestPVUnits(unittest.TestCase):
 
     @ignore(["superlogics.db", "lakeshore336.db", "motor.db"], "Historical failures have not been addressed")
     @ignore(["EPICS_V4"], "Vendor-supplied DBs")
-    @ignore(["DbUnitChecker"], "DB unit checker contains tests that deliberately fail, used as integration tests")
+    #@ignore(["DbUnitChecker"], "DB unit checker contains tests that deliberately fail, used as integration tests")
     def test_multiple_pvs_warning(self):
         """
         This method warns if there are multiple PVs with the same name in the project
@@ -105,7 +105,7 @@ class TestPVUnits(unittest.TestCase):
     @ignore(["separator_current.db"], "Mutually exclusive guards prevent this from ever happening")
     @ignore(["isActiveEurothrm.db"], "Mutually exclusive macro guards prevent this from ever happening")
     @ignore(["optics", "danfysikMps8000"], "Vendor-supplied DBs")
-    @ignore(["DbUnitChecker"], "DB unit checker contains tests that deliberately fail, used as integration tests")
+    #@ignore(["DbUnitChecker"], "DB unit checker contains tests that deliberately fail, used as integration tests")
     @ignore(["ips.db"], "The word 'field' used repeatedly in the DB to refer to a magnetic field confuses the parser, which tries to interpret them as epics field declarations.")
     @ignore(["Mezflipr_common.db"], "Complex macro guards cannot be understood by DbUnitChecker.")
     def test_multiple_properties_on_pvs(self):
@@ -123,7 +123,7 @@ class TestPVUnits(unittest.TestCase):
         self.assertEqual(len(failures), 0, msg=build_failure_message(
             "Multiple fields on PVs in {}".format(self.db.directory), failures))
 
-    @ignore(["DbUnitChecker"], "DB unit checker contains tests that deliberately fail, used as integration tests")
+    #@ignore(["DbUnitChecker"], "DB unit checker contains tests that deliberately fail, used as integration tests")
     def test_interest_units(self):
         """
         This method checks that interesting PVs have units
@@ -140,7 +140,7 @@ class TestPVUnits(unittest.TestCase):
         self.assertEqual(len(failures), 0, msg=build_failure_message(
             "Interesting PVs with no units in {}".format(self.db.directory), failures))
 
-    @ignore(["DbUnitChecker"], "DB unit checker contains tests that deliberately fail, used as integration tests")
+    #@ignore(["DbUnitChecker"], "DB unit checker contains tests that deliberately fail, used as integration tests")
     def test_interest_calc_readonly(self):
         """
         This method checks that interesting PVs that are calc fields are set to
@@ -158,7 +158,7 @@ class TestPVUnits(unittest.TestCase):
         self.assertEqual(len(failures), 0, msg=build_failure_message(
             "Writable calc records in {}".format(self.db.directory), failures))
 
-    @ignore(["DbUnitChecker"], "DB unit checker contains tests that deliberately fail, used as integration tests")
+    #@ignore(["DbUnitChecker"], "DB unit checker contains tests that deliberately fail, used as integration tests")
     def test_desc_length(self):
         """
         This method checks that the description length on all PVs is no longer than 40 chars
@@ -210,7 +210,7 @@ class TestPVUnits(unittest.TestCase):
         return all(is_standalone_unit(u) or is_prefixed_unit(u) for u in units)
 
     @ignore(["optics", "CALab", "DbUnitChecker", "danfysikMps8000", "EPICS_V4", "EdwardsNextTurbo"], "Vendor-supplied DBs")
-    @ignore(["DbUnitChecker"], "DB unit checker contains tests that deliberately fail, used as integration tests")
+    #@ignore(["DbUnitChecker"], "DB unit checker contains tests that deliberately fail, used as integration tests")
     @ignore(["ether_ip"], "Vendor-supplied DBs")
     def test_units_valid(self):
         """
@@ -227,7 +227,7 @@ class TestPVUnits(unittest.TestCase):
         self.assertEqual(len(failures), 0, msg=build_failure_message(
             "Invalid units in {}".format(self.db.directory), failures))
 
-    @ignore(["DbUnitChecker"], "DB unit checker contains tests that deliberately fail, used as integration tests")
+    #@ignore(["DbUnitChecker"], "DB unit checker contains tests that deliberately fail, used as integration tests")
     def test_interest_descriptions(self):
         """
         This method checks all records marked as interesting for description fields
@@ -242,7 +242,7 @@ class TestPVUnits(unittest.TestCase):
             "Missing description in {}".format(self.db.directory), failures))
 
     @ignore(["HVCAENx527ch.db"], "These are externally provided DBs")
-    @ignore(["DbUnitChecker"], "DB unit checker contains tests that deliberately fail, used as integration tests")
+    #@ignore(["DbUnitChecker"], "DB unit checker contains tests that deliberately fail, used as integration tests")
     def test_interest_syntax(self):
         """
         This method tests that all interesting PVs that are not in the names exception list are capitalised and
@@ -263,7 +263,7 @@ class TestPVUnits(unittest.TestCase):
         self.assertEqual(len(failures), 0, msg=build_failure_message(
             "PV syntax incorrect in {}".format(self.db.directory), failures))
 
-    @ignore(["DbUnitChecker"], "DB unit checker contains tests that deliberately fail, used as integration tests")
+    #@ignore(["DbUnitChecker"], "DB unit checker contains tests that deliberately fail, used as integration tests")
     def test_log_info_tags(self):
         """
         This method checks logging records to check that logging tags are not repeated and that the period is not
