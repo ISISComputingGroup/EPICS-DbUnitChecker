@@ -42,12 +42,31 @@ def _get_props(keyword, text):
 
     return fields
 
-def is_comment(line):
-    if  (line.find('#') != -1):
-        temp = line.split('#')[1]
-        if (temp.find('"') == -1):
-            print(temp)
+def remove_comments(line):
+    """ Removes comments from a given db line
+    @param line : Single line Db entry 
+    @returns text : parsed string with comments removed, line return added.
 
+    This method finds all single line comments starting with
+    a #. It checks to see whether the # is contained within a string
+    in which case it retains the text proceeds. All other comments are
+    removed before returning the parsed string.
+    """
+    text = ""
+    first_hash = line.find('#')
+    if (first_hash != -1):
+        comment = line.split('#')[1]     
+        real_text = line.split('#')[0]
+        first_quotes = comment.find('"')
+        if (first_quotes == -1) or (first_hash < first_quotes):
+            # if the # is not part of a string or the hash comes before the first quotes
+            text += real_text + '\n'
+        else:
+            text += real_text + comment + '\n'
+    else:
+        text += line + '\n'
+    return text
+    
 def parse_db(db_file):
         """
         This method will parse the text found in the EPICS db files to form groups of Record
@@ -55,24 +74,11 @@ def parse_db(db_file):
         """
 
         text = ""
-        test_text = ""
         temp_text = db_file.get_text()
 
         # remove comments but keep any # that appear in strings (may be able to do better in regex?)
         for line in iter(temp_text.splitlines()):
-            if  (line.find('#') != -1):
-                comment = line.split('#')[1]
-                real_text = line.split('#')[0]
-                if (comment.find('"') == -1): # if not inside a string.
-                    text += real_text + '\n'
-            else:
-                text += line + '\n'
-
-            """
-            if  not (line.find('#') != -1 and (line.find('#') < line.find('"') or line.find('"') == -1)):
-                # is not a comment so add to be parsed
-                text += line + '\n'
-            """
+            text += remove_comments(line)
         recs = []
 
         # cut out the text before the first record
