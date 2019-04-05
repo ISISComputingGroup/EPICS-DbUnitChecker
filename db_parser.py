@@ -62,7 +62,7 @@ def remove_comments(line):
             # if the # is not part of a string or the hash comes before the first quotes
             text += real_text + '\n'
         else:
-            text += real_text + comment + '\n'
+            text += real_text + '#' +  comment + '\n' #put the # back in, we want it retained.
     else:
         text += line + '\n'
     return text
