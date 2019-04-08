@@ -142,3 +142,23 @@ record(stringin, "SHOULDPASS:BLANK:PINI")
 record(ao, "SHOULDPASS:MULTIPLEWARNING")
 {}
 
+record(calc, "SHOULDPASS:MULTIPLEFIELDS") {
+    field(CALC, "(C=0||C=2)?A:B")  # If heater is present and switched off, display persistent field, else display PSU field
+    field(ASG, "READONLY")
+}
+
+record(calc, "SHOULDPASS:HASHINSTRING") {
+    field(CALC, "(C=0||C=2)?A:#C") 
+    field(ASG, "READONLY")
+}
+
+record(calc, "SHOULDPASS:HASHINSTRINGANDCOMMENT") {
+    field(CALC, "(C=0||C=2)?A:#D") #This is a comment with field in it
+    field(ASG, "READONLY")
+}
+
+
+record(calc, "SHOULDPASS:COMMENTEDOUTFIELDSS") {
+    #This is a comment with field in it field(CALC, "(C=0||C=2)?A:#D") 
+    field(ASG, "READONLY")
+}
