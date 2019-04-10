@@ -89,7 +89,7 @@ def parse_db(db_file):
 
             # cut out record data
             rec_type = re.split('[(,]', text)[1]
-
+            
             pv_name = _check_string(text)
 
             # cut out field data (any data between braces)

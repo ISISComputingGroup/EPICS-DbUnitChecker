@@ -107,7 +107,6 @@ def get_interest_units(db):
     for rec in db.records:
         if rec.is_interest() and not rec.is_disable() and (rec.get_type() in EGU_sub_list):
             unit = rec.get_field("EGU")
-
             if unit is None:
                 failures.append("Missing units on {}".format(rec))
     return failures

@@ -95,7 +95,7 @@ class Record:
         for info in self.infos:
             if info.name == search:
                 found_values.append(info.value)
-
+        print(found_values)
         return found_values
 
     def is_interest(self):
