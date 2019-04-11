@@ -40,10 +40,13 @@ def allowed_unit(raw_unit):
     # remove 1\ as this is ok as a unit as in 1\m but 1 on its own is not ok
     processed_unit = re.sub(r'1/', '', processed_unit)
 
+    
     # split unit amalgamations and remove powers
     units_with_powers = re.split(r'[/ ()]', processed_unit)
+    
     # allow power but not negative power so m^-1. Reason is there is no latex so 1/m is much clearer here
     units_with_blanks = [re.sub(r'^([a-zA-Z]+)\^[-]?\d$', r'\1', u, 1) for u in units_with_powers]
+    print(units_with_blanks)
     units = filter(None, units_with_blanks)
 
     def is_standalone_unit(u):
@@ -205,7 +208,6 @@ def get_log_info_tags(db):
         for db in dir_dbs:
             for rec in db.records:
                 for info in rec.infos:
-
                     info_name = info.name.lower().strip('"')
                     if info_name.startswith("log"):
                         previous_source = log_fields.get(info_name, None)

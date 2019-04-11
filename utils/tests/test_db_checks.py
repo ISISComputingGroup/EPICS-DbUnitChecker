@@ -12,10 +12,11 @@ class TestDbChecks(unittest.TestCase):
 
     def test_GIVEN_db_with_multiple_pvs_WHEN_called_THEN_return_failure(self):
 
-        fields = [Field('EGU', "A"), Field('EGU', "A")]
-        records = [Record('ao', 'SHOULDFAIL:MULTIPVS', None, fields), Record('ao', 'SHOULDFAIL', None, fields)]
+        fields = [Field('EGU', "A")]
+        records = [Record('ao', 'SHOULDFAIL:MULTIPVS', None, fields), Record('ao', 'SHOULDFAIL:MULTIPVS', None, fields)]
         dbs = Db('/path', records)
         failures = db_checks.get_multiple_instances(dbs)
+        print(failures)
         self.assertNotEqual(len(failures), 0)
 
     def test_GIVEN_db_with_multiple_properties_on_pv_WHEN_called_then_return_failure(self):
@@ -29,11 +30,11 @@ class TestDbChecks(unittest.TestCase):
     def test_GIVEN_db_with_single_properties_on_pvs_WHEN_called_then_return_no_failure(self):
 
         fields = [Field('EGU', "A"), Field('DESC', "This is a description")]
-        records = [Record('ao', 'SHOULDFAIL:SINGLEPROPERTY', None, fields)]
+        records = [Record('ao', 'SHOULDPASS:SINGLEPROPERTY', None, fields)]
         dbs = Db('/path', records)
         failures = db_checks.get_multiple_properties_on_pvs(dbs)
         self.assertEqual(len(failures), 0)
-        
+
     def test_GIVEN_db_with_interesting_pvs_with_no_units_WHEN_called_then_return_failure(self):
   
         field = [Field('DESC', "This is a description")]
@@ -169,10 +170,107 @@ class TestDbChecks(unittest.TestCase):
     def test_GIVEN_db_with_repeated_period_WHEN_called_then_return_failure(self):
         
         fields = [Field('DESC', "Test description")]
-        info = [Field("LOG_HEADER1", "a header"), Field("LOG_periods_seconds", "another header"),
+        info = [Field("LOG_HEADER1", "a header"), Field("LOG_period_seconds", "another header"),
                 Field("LOG_period_pv", "another header")
                 ]
         records = [Record('ao', 'SHOULDFAIL:REPEAT_PERIOD', info, fields)]
         dbs = Db('/path', records)
         failures = db_checks.get_log_info_tags(dbs)
+        self.assertNotEqual(len(failures), 0)
+
+
+    def test_GIVEN_db_with_recognised_units_with_correct_syntax_WHEN_called_return_no_failure(self):
+        field1 = [Field('DESC', "Test description"), Field("EGU", "cm")]
+        field2 = [Field('DESC', "Test description"), Field("EGU", "m")]
+        field3 = [Field('DESC', "Test description"), Field("EGU", "km")]
+        field4 = [Field('DESC', "Test description"), Field("EGU", "kbyte")]
+        field5 = [Field('DESC', "Test description"), Field("EGU", "bit/kbyte")]
+        field6 = [Field('DESC', "Test description"), Field("EGU", "m/s")]
+        field7 = [Field('DESC', "Test description"), Field("EGU", "m/(m s)")]
+        field8 = [Field('DESC', "Test description"), Field("EGU", "1/cm")]
+        field9 = [Field('DESC', "Test description"), Field("EGU", "cdeg")]
+        field10 = [Field('DESC', "Test description"), Field("EGU", "cdeg/ss")]
+        records = [ Record('ao', 'SHOULDPASS:CM', None, field1),
+                    Record('ao', 'SHOULDPASS:M', None, field2),
+                    Record('ao', 'SHOULDPASS:KM', None, field3),
+                    Record('ao', 'SHOULDPASS:KBYTE', None, field4),
+                    Record('ao', 'SHOULDPASS:BITS_OVER_KBYTE', None, field5),
+                    Record('ao', 'SHOULDPASS:M_OVER_S', None, field6),
+                    Record('ao', 'SHOULDPASS:MM-1S-1', None, field7),
+                    Record('ao', 'SHOULDPASS:1_OVER', None, field8),
+                    Record('ao', 'SHOULDPASS:CDEG', None, field9),
+                    Record('ao', 'SHOULDPASS:CDEG_OVER_SS', None, field10)
+                ]
+        dbs = Db('/path', records)
+        failures = db_checks.get_units_valid(dbs)
+        self.assertEqual(len(failures), 0)
+
+    def test_GIVEN_db_with_bad_unit_bits_kbytes_WHEN_called_return_failure(self):
+        field = [Field('DESC', "Test description"), Field("EGU", "bit kbyte^-1")]
+        records = [Record('ao', 'SHOULDFAIL:CM', None, field)]
+        dbs = Db('/path', records)
+        failures = db_checks.get_units_valid(dbs)
+        self.assertNotEqual(len(failures), 0)
+
+    def test_GIVEN_db_with_bad_unit_m_1_WHEN_called_return_failure(self):
+        field = [Field('DESC', "test prefer 1/m"), Field("EGU", "m^-1")]
+        records = [Record('ao', 'SHOULDFAIL:CM', None, field)]
+        dbs = Db('/path', records)
+        failures = db_checks.get_units_valid(dbs)
+        self.assertNotEqual(len(failures), 0)
+
+    def test_GIVEN_db_with_bad_unit_m_S_1_WHEN_called_return_failure(self):    
+        field = [Field('DESC', "test prefer m/s"), Field("EGU", "m s^-1")]
+        records = [Record('ao', 'SHOULDFAIL:CM', None, field)]
+        dbs = Db('/path', records)
+        failures = db_checks.get_units_valid(dbs)
+        self.assertNotEqual(len(failures), 0)
+    
+    def test_GIVEN_db_with_bad_unit_kkm_WHEN_called_return_failure(self):        
+        field = [Field('DESC', "Test description"), Field("EGU", "kkm")]
+        records = [Record('ao', 'SHOULDFAIL:CM', None, field)]
+        dbs = Db('/path', records)
+        failures = db_checks.get_units_valid(dbs)
+        self.assertNotEqual(len(failures), 0)
+
+    def test_GIVEN_db_with_bad_unit_kmk_WHEN_called_return_failure(self):
+        field = [Field('DESC', "Test description"), Field("EGU", "kmk")]
+        records = [Record('ao', 'SHOULDFAIL:CM', None, field)]
+        dbs = Db('/path', records)
+        failures = db_checks.get_units_valid(dbs)
+        self.assertNotEqual(len(failures), 0)
+
+    def test_GIVEN_db_with_bad_unit_KM_1_S_1_WHEN_called_return_failure(self):
+        field = [Field('DESC', "Test description"), Field("EGU", "k/(m s)")]
+        records = [Record('ao', 'SHOULDFAIL:CM', None, field)]
+        dbs = Db('/path', records)
+        failures = db_checks.get_units_valid(dbs)
+        self.assertNotEqual(len(failures), 0)
+
+    def test_GIVEN_db_with_bad_unit_MA_1S_1_WHEN_called_return_failure(self):
+        field = [Field('DESC', "Test description"), Field("EGU", "m/(As)")]
+        records = [Record('ao', 'SHOULDFAIL:CM', None, field)]
+        dbs = Db('/path', records)
+        failures = db_checks.get_units_valid(dbs)
+        self.assertNotEqual(len(failures), 0)
+
+    def test_GIVEN_db_with_bad_unit_dm_WHEN_called_return_failure(self):
+        field = [Field('DESC', "Test description"), Field("EGU", "dm")]
+        records = [Record('ao', 'SHOULDFAIL:CM', None, field)]
+        dbs = Db('/path', records)
+        failures = db_checks.get_units_valid(dbs)
+        self.assertNotEqual(len(failures), 0)
+
+    def test_GIVEN_db_with_bad_unit_kM_WHEN_called_return_failure(self):
+        field = [Field('DESC', "Test description"), Field("EGU", "kM")]
+        records = [Record('ao', 'SHOULDFAIL:CM', None, field)]
+        dbs = Db('/path', records)
+        failures = db_checks.get_units_valid(dbs)
+        self.assertNotEqual(len(failures), 0)
+
+    def test_GIVEN_db_with_bad_unit_Km_WHEN_called_return_failure(self):
+        field = [Field('DESC', "Test description"), Field("EGU", "Km")]
+        records = [Record('ao', 'SHOULDFAIL:CM', None, field)]
+        dbs = Db('/path', records)
+        failures = db_checks.get_units_valid(dbs)
         self.assertNotEqual(len(failures), 0)
