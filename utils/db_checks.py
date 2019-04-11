@@ -38,16 +38,21 @@ def allowed_unit(raw_unit):
     processed_unit = re.sub(r'\$[({].*?[})]', 'm', processed_unit)
 
     # remove 1\ as this is ok as a unit as in 1\m but 1 on its own is not ok
-    processed_unit = re.sub(r'1/', '', processed_unit)
+    processed_unit = re.sub(r'1/', '', processed_unit).replace(" ", "")
 
-    
     # split unit amalgamations and remove powers
     units_with_powers = re.split(r'[/ ()]', processed_unit)
-    
+   
     # allow power but not negative power so m^-1. Reason is there is no latex so 1/m is much clearer here
-    units_with_blanks = [re.sub(r'^([a-zA-Z]+)\^[-]?\d$', r'\1', u, 1) for u in units_with_powers]
-    print(units_with_blanks)
-    units = filter(None, units_with_blanks)
+    for u in units_with_powers:
+        if u.find('^') != -1:
+            base, expo = u.split('^')
+            if expo[:1] == '-':
+                return False
+            else:
+                units_with_powers = [base]
+
+    units = filter(None, units_with_powers)
 
     def is_standalone_unit(u):
         return u in allowed_non_prefixable_units or u in allowed_prefixable_units

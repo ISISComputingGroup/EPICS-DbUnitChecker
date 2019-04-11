@@ -73,7 +73,7 @@ class TestPVUnits(unittest.TestCase):
         self.assertEqual(len(failures), 0, msg=db_checks.build_failure_message(
             "Description too long in {}".format(self.db.directory), failures))
 
-    @ignore(["optics", "CALab", "DbUnitChecker", "danfysikMps8000", "EPICS_V4", "EdwardsNextTurbo"], "Vendor-supplied DBs")
+    @ignore(["optics", "CALab", "danfysikMps8000", "EPICS_V4", "EdwardsNextTurbo"], "Vendor-supplied DBs")
     @ignore(["ether_ip"], "Vendor-supplied DBs")
     def test_units_valid(self):
         """
