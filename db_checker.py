@@ -27,9 +27,10 @@ ASG_list = {'calc'}
 
 # list of the accepted units. Standard prefixs to these units are also accepted and checked for below
 # but we need to allow 'cm' explicitly as itr is a non-standard unit prefix for metre
-allowed_prefixable_units = {'A', 'angstrom', 'au', 'bar', 'B', 'bit', 'byte', 'C', 'count', 'degree', 'eV', 'frame', 'g', 'G',
-                            'hour', 'Hz', 'H', 'inch', 'interrupt', 'K', 'L', 'm', 'min', 'minute', 'ohm', 'Oersted',
-                            '%', 'photon', 'pixel', 'radian', 's', 'torr', 'step', 'T', 'V', 'Pa', 'deg', 'stp', 'W'}
+allowed_prefixable_units = {'A', 'angstrom', 'au', 'bar', 'B', 'bit', 'byte', 'C', 'count', 'degree', 'eV', 'frame',
+                            'g', 'G', 'hour', 'Hz', 'H', 'inch', 'interrupt', 'K', 'L', 'm', 'min', 'minute', 'ohm',
+                            'Oersted', '%', 'photon', 'pixel', 'radian', 's', 'torr', 'step', 'T', 'V', 'Pa', 'deg',
+                            'stp', 'W', 'N'}
 allowed_unit_prefixes = {'T', 'G', 'M', 'k', 'm', 'u', 'n', 'p', 'f'}
 allowed_non_prefixable_units = {
     'cm',
