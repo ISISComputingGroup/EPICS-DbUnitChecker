@@ -42,6 +42,7 @@ def _get_props(keyword, text):
 
     return fields
 
+
 def remove_comments(line):
     """ Removes comments from a given db line
     @param line : Single line Db entry 
@@ -51,69 +52,67 @@ def remove_comments(line):
     in which case it retains the text proceeds. All other comments are
     removed before returning the parsed string.
     """
-    text = ""
-    first_hash = line.find('#')
-    if (first_hash != -1):
-        comment = line.split('#')[1]     
-        real_text = line.split('#')[0]
-        first_quotes = comment.find('"')
-        if (first_quotes == -1) or (first_hash < first_quotes):
-            # if the # is not part of a string or the hash comes before the first quotes
-            text += real_text + '\n'
-        else:
-            text += real_text + '#' +  comment + '\n' #put the # back in, we want it retained.
+
+    is_full_line_comment = r"^(\s*#)"
+    if re.search(is_full_line_comment, line) is not None:
+        return "\n"
     else:
-        text += line + '\n'
-    return text
+        is_comment = r"#\s*\w*(?!.*['\"]\))"
+        matches = re.search(is_comment, line)
+        if matches is not None:
+            index = matches.span()[0]
+            return line[:index] + "\n"
+        else:
+            return line + "\n"
 
 def parse_db(db_file):
-        """
-        This method will parse the text found in the EPICS db files to form groups of Record
-        and Field instances.
-        """
+    """
+    This method will parse the text found in the EPICS db files to form groups of Record
+    and Field instances.
+    """
 
-        text = ""
-        temp_text = db_file.get_text()
+    text = ""
+    temp_text = db_file.get_text()
 
-        # remove comments but keep any # that appear in strings (may be able to do better in regex?)
-        for line in iter(temp_text.splitlines()):
-            text += remove_comments(line)
+    # remove comments but keep any # that appear in strings (may be able to do better in regex?)
+    for line in iter(temp_text.splitlines()):
+        text += remove_comments(line)
 
-        recs = []
+    recs = []
 
-        # cut out the text before the first record
+    # cut out the text before the first record
+    rec_pos = text.find("record")
+    text = text[rec_pos+5:]
+
+    while rec_pos != -1:
+
+        # cut out record data
+        rec_type = re.split('[(,]', text)[1]
+        
+        pv_name = _check_string(text)
+
+        # cut out field data (any data between braces)
+        braced_text = text[text.find('{')+1:text.find('}')]
+        field_text = braced_text
+
+        # check for info field
+        infos = _get_props("info", field_text)
+
+        # find fields
+        fields = _get_props("field", field_text)
+
+        # populate records list
+        rec = Record(rec_type.strip(), pv_name, infos, fields)
+        recs.append(rec)
+
+        # find next record
+        # check if the next instance of record occurs in a string
+
+        if re.search('"[^"]*record[^"]*?"', braced_text):
+            rec_pos = re.search('"[^"]*record[^"]*?"', text).end()  # find where record is used in a string
+            text = text[rec_pos+5:]
+
         rec_pos = text.find("record")
         text = text[rec_pos+5:]
 
-        while rec_pos != -1:
-
-            # cut out record data
-            rec_type = re.split('[(,]', text)[1]
-            
-            pv_name = _check_string(text)
-
-            # cut out field data (any data between braces)
-            braced_text = text[text.find('{')+1:text.find('}')]
-            field_text = braced_text
-
-            # check for info field
-            infos = _get_props("info", field_text)
-
-            # find fields
-            fields = _get_props("field", field_text)
-
-            # populate records list
-            rec = Record(rec_type.strip(), pv_name, infos, fields)
-            recs.append(rec)
-
-            # find next record
-            # check if the next instance of record occurs in a string
-
-            if re.search('"[^"]*record[^"]*?"', braced_text):
-                rec_pos = re.search('"[^"]*record[^"]*?"', text).end()  # find where record is used in a string
-                text = text[rec_pos+5:]
-
-            rec_pos = text.find("record")
-            text = text[rec_pos+5:]
-
-        return Db(db_file.get_dir(), recs)
+    return Db(db_file.get_dir(), recs)

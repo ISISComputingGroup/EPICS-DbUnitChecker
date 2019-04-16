@@ -21,18 +21,12 @@ def set_up(directories):
         for parsed_file in parsed_files(directory, ['.db', '.template']):
             yield parsed_file
 
-def suite():
-    return unittest.TestLoader().discover(os.path.join("utils", "tests"))
+def run_own_unit_tests(xml_dir):
 
+    print("Running self-tests...")
+    suite = unittest.TestLoader().discover(os.path.join("utils", "tests"))
+    return xmlrunner.XMLTestRunner(output=str(xml_dir), stream=sys.stdout).run(suite).wasSuccessful()
 
-def run_own_unit_tests():
-
-    #want to run the test using /test as the input and output directory.
-
-    #these were used by Dom to run the unit tests..
-    runner = unittest.TextTestRunner()
-    runner.run(suite())
-    
 def run_system_tests(xml_dir, input_dir):
 
     start = time.time()
@@ -51,9 +45,13 @@ def run_system_tests(xml_dir, input_dir):
 
     return success
 
-def run_all_tests():
-    pass
-
+def run_all_tests(xml_dir, input_dir):
+    
+    if not run_own_unit_tests(xml_dir):
+        return False
+    
+    return run_system_tests(xml_dir, input_dir)
+        
 def main():
 
     default_dirs = [os.path.join('..', '..', '..', 'ioc'),
@@ -67,13 +65,9 @@ def main():
                         help='The input directories to look for db files within')
     args = parser.parse_args()
 
-    #just try and get system tests running again..
-    system_success = run_system_tests(args.output_dir[0], args.input_dir)
-    
-    
-    sys.exit(0 if system_success else 1)
-    #unit_success = run_own_unit_tests()
-
+    xml_dir = args.output_dir[0]
+    success = run_all_tests(xml_dir, args.input_dir)
+    sys.exit(0 if success else 1)
 
 if __name__ == '__main__':
     main()
