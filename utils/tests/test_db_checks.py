@@ -165,8 +165,6 @@ class TestDbChecks(unittest.TestCase):
         failures = db_checks.get_log_info_tags(dbs)
         self.assertNotEqual(len(failures), 0)
 
-
-    #need to come and fix this
     def test_GIVEN_db_with_repeated_period_WHEN_called_then_return_failure(self):
         
         fields = [Field('DESC', "Test description")]

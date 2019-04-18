@@ -16,9 +16,7 @@ def _check_string(text):
         r = re.split('[,)]', text)
         
     if len(r) < 2:
-        print('value less than')
-        raise ValueError("Cannot parse " + text)
-    print(r[0])
+        raise ValueError("Cannot parse " + text + ", length < 2.")
     return r[1]
 
 

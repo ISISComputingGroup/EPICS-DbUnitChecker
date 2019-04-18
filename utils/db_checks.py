@@ -45,7 +45,7 @@ def allowed_unit(raw_unit):
    
     # allow power but not negative power so m^-1. Reason is there is no latex so 1/m is much clearer here
     for u in units_with_powers:
-        if u.find('^') != -1:
+        if '^' in u:
             base, expo = u.split('^')
             if expo[:1] == '-':
                 return False

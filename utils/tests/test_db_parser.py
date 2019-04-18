@@ -43,58 +43,46 @@ class TestDbParser(unittest.TestCase):
         'field(DESC, "test description")\n'
         'field(EGU, "m/s")\n'
         '}')
-        success = True
-        actual_result = db_parser._get_props('field', record)
-        if actual_result is None:
-            success = False
-        if len(actual_result) is not len(required_result):
-            success = False
-        for (a,b) in zip(actual_result, required_result):
-            success = success and a.name == b.name and a.value == b.value
 
-        self.assertEqual(success, True)
+        actual_result = db_parser._get_props('field', record)
+        self.assertNotEqual(actual_result, [])
+        self.assertTrue(len(actual_result) == len(required_result))
+       
+        for (a,b) in zip(actual_result, required_result):
+            self.assertTrue(a.name == b.name)
+            self.assertTrue(a.value == b.value)
       
     def test_GIVEN_text_with_field_in_string_WHEN_called_THEN_get_props_returns_no_failure(self):
 
-        required_result = [Field('DESC', "test description"), Field("EGU", "m/s")]
+        required_result = [Field("EGU", "m/s")]
         record = ('record(ao, "SHOULDPASS:m_OVER_s")\n'
         '{\n'
         '"field"(DESC, "test description")\n'
         'field(EGU, "m/s")\n'
         '}')
-        success = True
+      
         actual_result = db_parser._get_props('field', record)
-        if actual_result is None:
-            success = False
-        if len(actual_result) is not len(required_result):
-            success = False
+        self.assertNotEqual(actual_result, [])
+        self.assertTrue(len(actual_result) == len(required_result))
+       
         for (a,b) in zip(actual_result, required_result):
-            success = success and a.name == b.name and a.value == b.value
-
-        self.assertEqual(success, True)
+            self.assertTrue(a.name == b.name)
+            self.assertTrue(a.value == b.value)
 
     def test_GIVEN_text_without_keyword_WHEN_called_THEN_return_failure(self):
         
-        required_result = [Field('DESC', "test description"), Field("EGU", "m/s")]
         record = ('record(ao, "SHOULDPASS:m_OVER_s")\n'
         '{\n'
         '"field"(DESC, "test description")\n'
         'field(EGU, "m/s")\n'
         '}')
-        success = True
         actual_result = db_parser._get_props('info', record)
-        if actual_result is None:
-            success = False
-        if len(actual_result) is not len(required_result):
-            success = False
-        for (a,b) in zip(actual_result, required_result):
-            success = success and a.name == b.name and a.value == b.value
-        self.assertEqual(success, False)
+        self.assertListEqual(actual_result, [])
 
     def test_GIVEN_properly_formatted_record_text_WHEN_called_THEN_return_no_failure(self):
 
         required_result = "SHOULDPASS:m_OVER_s"
-        record = 'record(ao, "SHOULD, PASS:m_OVER_s")'
+        record = 'record(ao, "SHOULDPASS:m_OVER_s")'
         actual_result = db_parser._check_string(record)
         self.assertEqual(required_result, actual_result)
 
