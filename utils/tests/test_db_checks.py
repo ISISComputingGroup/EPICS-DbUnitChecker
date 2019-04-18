@@ -190,6 +190,9 @@ class TestDbChecks(unittest.TestCase):
         field8 = [Field('DESC', "Test description"), Field("EGU", "1/cm")]
         field9 = [Field('DESC', "Test description"), Field("EGU", "cdeg")]
         field10 = [Field('DESC', "Test description"), Field("EGU", "cdeg/ss")]
+        field11 = [Field('DESC', "Newtons should be a valid EGU"), Field('EGU', "N")]
+        field12 = [Field('DESC', "Should be able to prefix Newtons"), Field('EGU', "mN")]
+
         records = [ Record('ao', 'SHOULDPASS:CM', None, field1),
                     Record('ao', 'SHOULDPASS:M', None, field2),
                     Record('ao', 'SHOULDPASS:KM', None, field3),
@@ -199,7 +202,9 @@ class TestDbChecks(unittest.TestCase):
                     Record('ao', 'SHOULDPASS:MM-1S-1', None, field7),
                     Record('ao', 'SHOULDPASS:1_OVER', None, field8),
                     Record('ao', 'SHOULDPASS:CDEG', None, field9),
-                    Record('ao', 'SHOULDPASS:CDEG_OVER_SS', None, field10)
+                    Record('ao', 'SHOULDPASS:CDEG_OVER_SS', None, field10),
+                    Record('ao', 'SHOULDPASS:NEWTONS:N', None, field11),
+                    Record('ao', '"SHOULDPASS:MILINEWTONS', None, field12),
                 ]
         dbs = Db('/path', records)
         failures = db_checks.get_units_valid(dbs)
