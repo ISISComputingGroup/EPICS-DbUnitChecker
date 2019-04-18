@@ -14,8 +14,11 @@ def _check_string(text):
     else:
         # Data is not a string
         r = re.split('[,)]', text)
+        
     if len(r) < 2:
+        print('value less than')
         raise ValueError("Cannot parse " + text)
+    print(r[0])
     return r[1]
 
 

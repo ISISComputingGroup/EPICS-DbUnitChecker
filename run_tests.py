@@ -16,18 +16,31 @@ DEFAULT_DIRECTORY = os.path.join('..', '..', '..', 'test-reports')
 def set_up(directories):
     """
     This set up method generates parsed DB and template files.
+    @param directories: a list of directories passed to the tool
+    @returns parsed file: a single parsed db file 
     """
     for directory in directories:
         for parsed_file in parsed_files(directory, ['.db', '.template']):
             yield parsed_file
 
 def run_own_unit_tests(xml_dir):
+    """ Run all unit tests on db_checks and db_parser
+
+    @param xml_dir : output directory to pass the results to
+    @returns : state of the tests True/False
+    """
 
     print("Running self-tests...")
     suite = unittest.TestLoader().discover(os.path.join("utils", "tests"))
     return xmlrunner.XMLTestRunner(output=str(xml_dir), stream=sys.stdout).run(suite).wasSuccessful()
 
 def run_system_tests(xml_dir, input_dir):
+    """ Run PvUnit tests on the input directories
+
+    @param xml_dir : output directory to pass the results to
+    @param input_dir : input directory of DB files.
+    @returns sccess : state of the tests True/False
+    """
 
     start = time.time()
     loader = unittest.TestLoader()
@@ -46,6 +59,11 @@ def run_system_tests(xml_dir, input_dir):
     return success
 
 def run_all_tests(xml_dir, input_dir):
+    """ Run all unit tests on db_checks and db_parser
+
+    @param xml_dir : output directory to pass the results to
+    @returns : state of the tests True/False
+    """
     
     if not run_own_unit_tests(xml_dir):
         return False
