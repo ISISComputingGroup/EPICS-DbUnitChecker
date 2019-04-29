@@ -1,1 +1,1 @@
-%python% db_checker.py -o ./test -i ./test
+%python% run_tests.py -o ./tests -i ./tests

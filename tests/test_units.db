@@ -28,6 +28,35 @@ record(ao, "SHOULDPASS:BITS_OVER_KBYTE")
 	field(EGU, "bit/kbyte")
 }
 
+record(ao, "SHOULDPASS:CDEG")
+{
+	field(DESC, "Used by GEMORC")
+	field(EGU, "cdeg")
+}
+
+record(ao, "SHOULDPASS:CDEG_OVER_SS")
+{
+	field(DESC, "Used by GEMORC because cdeg/s^2 too long")
+	field(EGU, "cdeg/ss")
+}
+
+record(ao, "SHOULDPASS:m_OVER_s") 
+{
+	field(DESC, "test description")
+	field(EGU, "m/s")
+}
+
+record(ao, "SHOULDPASS:1_over")
+{
+	field(EGU, "1/cm")
+}
+
+record(ao, "SHOULDPASS:MM-1S-1") 
+{
+	field(DESC, "test description")
+	field(EGU, "m/(m s)")
+}
+
 record(ao, "SHOULDFAIL:BITS_KBYTE^-1")
 {
 	field(DESC, "prefer bit/kbyte")
@@ -40,22 +69,10 @@ record(ao, "SHOULDFAIL:M-1")
 	field(EGU, "m^-1")
 }
 
-record(ao, "SHOULDPASS:m_OVER_s") 
-{
-	field(DESC, "test description")
-	field(EGU, "m/s")
-}
-
 record(ao, "SHOULDFAIL:m_S-1")
 {
 	field(DESC, "test prefer m/s")
 	field(EGU, "m s^-1")
-}
-
-record(ao, "SHOULDPASS:MM-1S-1") 
-{
-	field(DESC, "test description")
-	field(EGU, "m/(m s)")
 }
 
 record(ao, "SHOULDFAIL:BADUNIT:KKM") 
@@ -100,11 +117,6 @@ record(ao, "SHOULDFAIL:BADUNIT:CAPS_2")
 	field(EGU, "Km")
 }
 
-record(ao, "SHOULDPASS:1_over")
-{
-	field(EGU, "1/cm")
-}
-
 record(ao, "SHOULDFAIL:BADUNIT:1")
 {
 	field(EGU, "1")
@@ -122,26 +134,4 @@ record(ao, "SHOULDFAIL:BADUNIT:negative_power")
 	field(EGU, "m^-1")
 }
 
-record(ao, "SHOULDPASS:CDEG")
-{
-	field(DESC, "Used by GEMORC")
-	field(EGU, "cdeg")
-}
 
-record(ao, "SHOULDPASS:CDEG_OVER_SS")
-{
-	field(DESC, "Used by GEMORC because cdeg/s^2 too long")
-	field(EGU, "cdeg/ss")
-}
-
-record(ao, "SHOULDPASS:NEWTONS:N")
-{
-    field(DESC, "Newtons should be a valid EGU")
-    field(EGU, "N")
-}
-
-record(ao, "SHOULDPASS:MILINEWTONS")
-{
-    field(DESC, "Should be able to prefix Newtons")
-    field(EGU, "mN")
-}
