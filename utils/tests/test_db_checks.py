@@ -3,6 +3,7 @@ import mock
 from utils import db_checks
 from utils.EPICS_collections import Record, Db, Field
 
+
 class TestDbChecks(unittest.TestCase):
     def test_GIVEN_db_with_no_records_WHEN_multi_called_THEN_return_no_failure(self):
         dbs = mock.Mock()
@@ -145,6 +146,7 @@ class TestDbChecks(unittest.TestCase):
         dbs = Db('/path', records)
         failures = db_checks.get_interest_syntax(dbs)
         self.assertNotEqual(len(failures), 0)
+
     def test_GIVEN_db_with_unique_logging_tags_and_period_WHEN_called_then_return_no_failure(self):
 
         fields = [Field('DESC', "Test description")]
@@ -176,7 +178,6 @@ class TestDbChecks(unittest.TestCase):
         failures = db_checks.get_log_info_tags(dbs)
         self.assertNotEqual(len(failures), 0)
 
-
     def test_GIVEN_db_with_recognised_units_with_correct_syntax_WHEN_called_return_no_failure(self):
         field1 = [Field('DESC', "Test description"), Field("EGU", "cm")]
         field2 = [Field('DESC', "Test description"), Field("EGU", "m")]
@@ -191,19 +192,20 @@ class TestDbChecks(unittest.TestCase):
         field11 = [Field('DESC', "Newtons should be a valid EGU"), Field('EGU', "N")]
         field12 = [Field('DESC', "Should be able to prefix Newtons"), Field('EGU', "mN")]
 
-        records = [ Record('ao', 'SHOULDPASS:CM', None, field1),
-                    Record('ao', 'SHOULDPASS:M', None, field2),
-                    Record('ao', 'SHOULDPASS:KM', None, field3),
-                    Record('ao', 'SHOULDPASS:KBYTE', None, field4),
-                    Record('ao', 'SHOULDPASS:BITS_OVER_KBYTE', None, field5),
-                    Record('ao', 'SHOULDPASS:M_OVER_S', None, field6),
-                    Record('ao', 'SHOULDPASS:MM-1S-1', None, field7),
-                    Record('ao', 'SHOULDPASS:1_OVER', None, field8),
-                    Record('ao', 'SHOULDPASS:CDEG', None, field9),
-                    Record('ao', 'SHOULDPASS:CDEG_OVER_SS', None, field10),
-                    Record('ao', 'SHOULDPASS:NEWTONS:N', None, field11),
-                    Record('ao', '"SHOULDPASS:MILINEWTONS', None, field12),
-                ]
+        records = [
+            Record('ao', 'SHOULDPASS:CM', None, field1),
+            Record('ao', 'SHOULDPASS:M', None, field2),
+            Record('ao', 'SHOULDPASS:KM', None, field3),
+            Record('ao', 'SHOULDPASS:KBYTE', None, field4),
+            Record('ao', 'SHOULDPASS:BITS_OVER_KBYTE', None, field5),
+            Record('ao', 'SHOULDPASS:M_OVER_S', None, field6),
+            Record('ao', 'SHOULDPASS:MM-1S-1', None, field7),
+            Record('ao', 'SHOULDPASS:1_OVER', None, field8),
+            Record('ao', 'SHOULDPASS:CDEG', None, field9),
+            Record('ao', 'SHOULDPASS:CDEG_OVER_SS', None, field10),
+            Record('ao', 'SHOULDPASS:NEWTONS:N', None, field11),
+            Record('ao', '"SHOULDPASS:MILINEWTONS', None, field12),
+        ]
         dbs = Db('/path', records)
         failures = db_checks.get_units_valid(dbs)
         self.assertEqual(len(failures), 0)

@@ -1,4 +1,5 @@
-import re, os
+import re
+import os
 from collections import defaultdict
 
 # list of those record types that should have a EGU field
@@ -13,9 +14,10 @@ ASG_list = {'calc'}
 
 # list of the accepted units. Standard prefixs to these units are also accepted and checked for below
 # but we need to allow 'cm' explicitly as itr is a non-standard unit prefix for metre
-allowed_prefixable_units = {'A', 'angstrom', 'au', 'bar', 'B', 'bit', 'byte', 'C', 'count', 'degree', 'eV', 'frame', 'g', 'G',
-                            'hour', 'Hz', 'H', 'inch', 'interrupt', 'K', 'L', 'm', 'min', 'minute', 'ohm', 'Oersted',
-                            '%', 'photon', 'pixel', 'radian', 's', 'torr', 'step', 'T', 'V', 'Pa', 'deg', 'stp', 'W', 'N'}
+allowed_prefixable_units = {'A', 'angstrom', 'au', 'bar', 'B', 'bit', 'byte', 'C', 'count', 'degree', 'eV', 'frame',
+                            'g', 'G', 'hour', 'Hz', 'H', 'inch', 'interrupt', 'K', 'L', 'm', 'min', 'minute', 'ohm',
+                            'Oersted', '%', 'photon', 'pixel', 'radian', 's', 'torr', 'step', 'T', 'V', 'Pa', 'deg',
+                            'stp', 'W', 'N'}
 allowed_unit_prefixes = {'T', 'G', 'M', 'k', 'm', 'u', 'n', 'p', 'f'}
 allowed_non_prefixable_units = {
     'cm',
@@ -59,11 +61,12 @@ def allowed_unit(raw_unit):
 
     def is_prefixed_unit(u):
         return any(len(u) > len(base_unit) and
-                    u[-len(base_unit):] == base_unit and
-                    u[:-len(base_unit)] in allowed_unit_prefixes
-                    for base_unit in allowed_prefixable_units)
+                   u[-len(base_unit):] == base_unit and
+                   u[:-len(base_unit)] in allowed_unit_prefixes
+                   for base_unit in allowed_prefixable_units)
 
     return all(is_standalone_unit(u) or is_prefixed_unit(u) for u in units)
+
 
 def build_failure_message(basemessage, submessages):
     """
@@ -78,6 +81,7 @@ def build_failure_message(basemessage, submessages):
     """
     return "{}\n{}".format(basemessage, "\n".join("   -> " + s for s in submessages))
 
+
 def get_multiple_instances(db):        
     """
     This method warns if there are multiple PVs with the same name in the project
@@ -91,6 +95,7 @@ def get_multiple_instances(db):
         if len(v) > 1:
             failures.append("Multiple instances of {}".format(k))
     return failures
+
 
 def get_multiple_properties_on_pvs(db):
     """
@@ -134,6 +139,7 @@ def get_interest_calc_readonly(db):
                 failures.append("Missing ASG on {}".format(rec))
     return failures
 
+
 def get_desc_length(db):
     """
     This method checks that the description length on all PVs is no longer than 40 chars
@@ -176,6 +182,7 @@ def get_interest_descriptions(db):
             failures.append("Missing description on {}".format(rec))
     return failures
 
+
 def get_interest_syntax(db):
     """
     This method tests that all interesting PVs that are not in the names exception list are capitalised and
@@ -193,6 +200,7 @@ def get_interest_syntax(db):
                 failures.append("{} should be upper-case".format(rec))
 
     return failures
+
 
 def get_log_info_tags(db):
     """
@@ -217,7 +225,7 @@ def get_log_info_tags(db):
                     if info_name.startswith("log"):
                         previous_source = log_fields.get(info_name, None)
                         if previous_source is not None:
-                            failures.append("Invalid logging config: {source} repeats the log info tag " \
+                            failures.append("Invalid logging config: {source} repeats the log info tag "
                                             "{tag}".format(source=rec, tag=info_name))
                         else:
                             log_fields[info_name] = (db, rec)
@@ -226,7 +234,7 @@ def get_log_info_tags(db):
                         if logging_period is None:
                             logging_period = (db, rec)
                         else:
-                            failures.append("Invalid logging config: {source} alters the logging period " \
+                            failures.append("Invalid logging config: {source} alters the logging period "
                                             "type".format(source=rec, tag=info_name))
 
     return failures

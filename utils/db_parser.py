@@ -66,6 +66,7 @@ def remove_comments(line):
         else:
             return line + "\n"
 
+
 def parse_db(db_file):
     """
     This method will parse the text found in the EPICS db files to form groups of Record

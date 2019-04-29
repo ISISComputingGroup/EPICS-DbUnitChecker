@@ -2,16 +2,15 @@ import unittest
 import time
 import xmlrunner
 import argparse
-import re
 import sys
 import os
 
-from utils.tests.test_db_checks import TestDbChecks
 from tests.pv_unit_tests import TestPVUnits
 from utils.loader import parsed_files
 
 
 DEFAULT_DIRECTORY = os.path.join('..', '..', '..', 'test-reports')
+
 
 def set_up(directories):
     """
@@ -23,6 +22,7 @@ def set_up(directories):
         for parsed_file in parsed_files(directory, ['.db', '.template']):
             yield parsed_file
 
+
 def run_own_unit_tests(xml_dir):
     """ Run all unit tests on db_checks and db_parser
 
@@ -33,6 +33,7 @@ def run_own_unit_tests(xml_dir):
     print("Running self-tests...")
     suite = unittest.TestLoader().discover(os.path.join("utils", "tests"))
     return xmlrunner.XMLTestRunner(output=str(xml_dir), stream=sys.stdout).run(suite).wasSuccessful()
+
 
 def run_system_tests(xml_dir, input_dir):
     """ Run PvUnit tests on the input directories
@@ -58,6 +59,7 @@ def run_system_tests(xml_dir, input_dir):
 
     return success
 
+
 def run_all_tests(xml_dir, input_dir):
     """ Run all unit tests on db_checks and db_parser
 
@@ -69,7 +71,8 @@ def run_all_tests(xml_dir, input_dir):
         return False
     
     return run_system_tests(xml_dir, input_dir)
-        
+
+
 def main():
 
     default_dirs = [os.path.join('..', '..', '..', 'ioc'),
@@ -89,4 +92,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-  
