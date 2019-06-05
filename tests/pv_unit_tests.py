@@ -83,7 +83,7 @@ class TestPVUnits(unittest.TestCase):
             "Description too long in {}".format(self.db.directory), failures))
 
     @ignore(["optics", "CALab", "danfysikMps8000", "EPICS_V4", "EdwardsNextTurbo"], "Vendor-supplied DBs")
-    @ignore(["ether_ip"], "Vendor-supplied DBs")
+    @ignore(["ether_ip", "seq"], "Vendor-supplied DBs")
     @ignore(["isisdae.db", "qepro.template"], "Historical failures not addressed")
     @ignore(["DbUnitChecker"], "Contains integration tests which deliberately fail")
     def test_units_valid(self):
