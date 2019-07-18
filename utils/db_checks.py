@@ -17,7 +17,7 @@ ASG_list = {'calc'}
 allowed_prefixable_units = {'A', 'angstrom', 'au', 'bar', 'B', 'bit', 'byte', 'C', 'count', 'degree', 'eV', 'frame',
                             'g', 'G', 'hour', 'Hz', 'H', 'inch', 'interrupt', 'K', 'L', 'm', 'min', 'minute', 'ohm',
                             'Oersted', '%', 'photon', 'pixel', 'radian', 's', 'torr', 'step', 'T', 'V', 'Pa', 'deg',
-                            'stp', 'W', 'N'}
+                            'stp', 'W', 'N', 'F'}
 allowed_unit_prefixes = {'T', 'G', 'M', 'k', 'm', 'u', 'n', 'p', 'f'}
 allowed_non_prefixable_units = {
     'cm',
