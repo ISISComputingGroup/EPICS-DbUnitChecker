@@ -64,6 +64,7 @@ class TestPVUnits(unittest.TestCase):
             "Interesting PVs with no units in {}".format(self.db.directory), failures))
 
     @ignore(["DbUnitChecker"], "Contains integration tests which deliberately fail")
+    @ignore(["jsco4180.db"], "Complex calc record sequences not understood properly")
     def test_interest_calc_readonly(self):
         """
         This method checks that interesting PVs that are calc fields are set to
