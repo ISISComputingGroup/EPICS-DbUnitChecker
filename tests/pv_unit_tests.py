@@ -27,6 +27,7 @@ class TestPVUnits(unittest.TestCase):
     @ignore(["superlogics.db", "lakeshore336.db", "motor.db"], "Historical failures have not been addressed")
     @ignore(["EPICS_V4"], "Vendor-supplied DBs")
     @ignore(["DbUnitChecker"], "Contains integration tests which deliberately fail")
+    @ignore(["channel_access_test.template"], "Too complicated for DbUnitChecker to understand")
     def test_multiple_pvs_warning(self):
         """
         This method warns if there are multiple PVs with the same name in the project
