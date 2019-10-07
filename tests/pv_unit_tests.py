@@ -41,7 +41,10 @@ class TestPVUnits(unittest.TestCase):
         "moxa12XX_aliases.db",
         "separator_voltage.db",
         "separator_current.db",
-        "isActiveEurothrm.db"
+        "isActiveEurothrm.db",
+        "tpgx6x.template",
+        "tpg36x.db",
+        "tpg26x.db",
     ], "Mutually exclusive guards prevent this from ever happening")
     @ignore(["optics", "danfysikMps8000"], "Vendor-supplied DBs")
     @ignore(["Mezflipr_common.db"], "Complex macro guards cannot be understood by DbUnitChecker.")
