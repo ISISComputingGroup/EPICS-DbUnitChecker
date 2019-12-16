@@ -7,10 +7,12 @@ DIRECTORIES_TO_ALWAYS_IGNORE = [
     ".git",
     "O.Common",
     "O.windows-x64",
+    "O.win32-x86",
     "bin",
     "lib",
     "include",
     ".project",
+    ".ci",
     "areaDetector",  # Has some huge DBs which take forever to parse.
 ]
 
