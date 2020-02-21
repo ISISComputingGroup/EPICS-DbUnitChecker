@@ -9,7 +9,8 @@ from tests.pv_unit_tests import TestPVUnits
 from utils.loader import parsed_files
 
 
-DEFAULT_DIRECTORY = os.path.join('..', '..', '..', 'test-reports')
+SOURCE_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
+DEFAULT_DIRECTORY = os.path.join(SOURCE_DIRECTORY, '..', '..', '..', 'test-reports')
 
 
 def set_up(directories):
@@ -31,7 +32,7 @@ def run_own_unit_tests(xml_dir):
     """
 
     print("Running self-tests...")
-    suite = unittest.TestLoader().discover(os.path.join("utils", "tests"))
+    suite = unittest.TestLoader().discover(os.path.join(SOURCE_DIRECTORY, "utils", "tests"))
     return xmlrunner.XMLTestRunner(output=str(xml_dir), stream=sys.stdout).run(suite).wasSuccessful()
 
 
@@ -66,17 +67,17 @@ def run_all_tests(xml_dir, input_dir):
     @param xml_dir : output directory to pass the results to
     @returns : state of the tests True/False
     """
-    
+
     if not run_own_unit_tests(xml_dir):
         return False
-    
+
     return run_system_tests(xml_dir, input_dir)
 
 
 def main():
 
-    default_dirs = [os.path.join('..', '..', '..', 'ioc'),
-                    os.path.join('..', '..', '..', 'support'), os.path.join('..', '..')]
+    default_dirs = [os.path.join(SOURCE_DIRECTORY, '..', '..', '..', 'ioc'),
+                    os.path.join(SOURCE_DIRECTORY, '..', '..', '..', 'support'), os.path.join(SOURCE_DIRECTORY, '..', '..')]
 
     # Get output directory from command line arguments
     parser = argparse.ArgumentParser()
@@ -89,6 +90,7 @@ def main():
     xml_dir = args.output_dir[0]
     success = run_all_tests(xml_dir, args.input_dir)
     sys.exit(0 if success else 1)
+
 
 if __name__ == '__main__':
     main()
