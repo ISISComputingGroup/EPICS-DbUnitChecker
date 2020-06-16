@@ -64,7 +64,8 @@ class Record:
 
     def has_field(self, search):
         """
-        This method checks all contained fields for instances of a pv given by the search input
+        This method checks all contained fields for instances of a
+        pv given by the search input
         """
         for field in self.fields:
             if field.name == search:
@@ -73,7 +74,8 @@ class Record:
 
     def get_field(self, search):
         """
-        This method returns the values of the first field contained within the record that matches the search input
+        This method returns the values of the first field contained within
+        the record that matches the search input
         If no field exists None is returned
         """
         for field in self.fields:
@@ -89,7 +91,8 @@ class Record:
 
     def get_info(self, search):
         """
-        This method returns a list of the values of all contained info fields that match the search input
+        This method returns a list of the values of all contained info
+        fields that match the search input
         """
         found_values = []
         for info in self.infos:
@@ -109,7 +112,8 @@ class Record:
 
 class Field:
     """
-    This class holds all the data about each field within a record, not using a dictionary as may not be unique
+    This class holds all the data about each field within a record,
+    not using a dictionary as may not be unique
     """
     def __init__(self, name, value):
         self.name = name.strip()
