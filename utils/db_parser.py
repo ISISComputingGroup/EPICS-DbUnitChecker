@@ -4,8 +4,8 @@ from EPICS_collections import Db, Record, Field
 
 def _check_string(text):
     """
-    Helper function to return the data between the next comma and closed bracket, even if it's a string containing
-    commas/brackets
+    Helper function to return the data between the next comma and closed
+    bracket, even if it's a string containing commas/brackets
     """
     quote_pos = text.find('"')
     if quote_pos < text.find(')') and quote_pos != -1:
@@ -22,8 +22,9 @@ def _check_string(text):
 
 def _get_props(keyword, text):
     """
-    This method searches for valid EPICS formatted data under the given keyword in the text, specifically
-    avoiding strings containing that keyword. E.g. info and field
+    This method searches for valid EPICS formatted data under the given
+    keyword in the text, specifically avoiding strings containing
+    that keyword. E.g. info and field
     A list of this data is returned.
     """
     fields = []
@@ -69,14 +70,15 @@ def remove_comments(line):
 
 def parse_db(db_file):
     """
-    This method will parse the text found in the EPICS db files to form groups of Record
-    and Field instances.
+    This method will parse the text found in the EPICS db files to form groups
+    of Record and Field instances.
     """
 
     text = ""
     temp_text = db_file.get_text()
 
-    # remove comments but keep any # that appear in strings (may be able to do better in regex?)
+    # remove comments but keep any # that appear in strings
+    # (may be able to do better in regex?)
     for line in iter(temp_text.splitlines()):
         text += remove_comments(line)
 
@@ -111,7 +113,8 @@ def parse_db(db_file):
         # check if the next instance of record occurs in a string
 
         if re.search('"[^"]*record[^"]*?"', braced_text):
-            rec_pos = re.search('"[^"]*record[^"]*?"', text).end()  # find where record is used in a string
+            # find where record is used in a string
+            rec_pos = re.search('"[^"]*record[^"]*?"', text).end()
             text = text[rec_pos+5:]
 
         rec_pos = text.find("record")
