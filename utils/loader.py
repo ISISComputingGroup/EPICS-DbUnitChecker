@@ -1,5 +1,5 @@
 from os.path import join
-from db_parser import parse_db
+from .db_parser import parse_db
 import os
 
 

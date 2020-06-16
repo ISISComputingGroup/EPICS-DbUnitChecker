@@ -1,5 +1,5 @@
 import re
-from EPICS_collections import Db, Record, Field
+from .EPICS_collections import Db, Record, Field
 
 
 def _check_string(text):
