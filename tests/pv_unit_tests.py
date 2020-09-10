@@ -66,7 +66,7 @@ class TestPVUnits(unittest.TestCase):
     ], "Mutually exclusive guards prevent this from ever happening")
     @ignore(["optics", "danfysikMps8000"], "Vendor-supplied DBs")
     @ignore(
-        ["Mezflipr_common.db"],
+        ["Mezflipr_common_v1.db"],
         "Complex macro guards cannot be understood by DbUnitChecker."
     )
     @ignore(
