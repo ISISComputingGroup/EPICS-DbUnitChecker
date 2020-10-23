@@ -50,6 +50,10 @@ class TestPVUnits(unittest.TestCase):
             )
         )
 
+    @ignore(
+        ["MercurySPCAvailable.db"],
+        "Used to set on or off commented out by macro"
+    )
     @ignore([
         "moxa1210_aliases.db",
         "moxa12XX_aliases.db",
