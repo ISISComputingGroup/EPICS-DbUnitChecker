@@ -14,6 +14,7 @@ DIRECTORIES_TO_ALWAYS_IGNORE = [
     ".project",
     ".ci",
     "areaDetector",  # Has some huge DBs which take forever to parse.
+    ".vs"
 ]
 
 
@@ -53,8 +54,11 @@ def _load_files(path, file_types):
                                           file_type in file_types)]:
             filename = os.path.abspath(join(root, f))
 
-            with open(filename) as _file:
-                text = _file.read()
+            try:
+                with open(filename) as _file:
+                    text = _file.read()
+            except Exception as e:
+                raise Exception(f"{str(e)} found in {filename}")
 
             # check db is EPICS
             if not(text.find("record") == -1):
