@@ -14,6 +14,7 @@ DIRECTORIES_TO_ALWAYS_IGNORE = [
     ".project",
     ".ci",
     "areaDetector",  # Has some huge DBs which take forever to parse.
+    ".vs"
 ]
 
 
