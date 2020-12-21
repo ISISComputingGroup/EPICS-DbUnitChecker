@@ -132,7 +132,7 @@ class TestPVUnits(unittest.TestCase):
             "Description too long in {}".format(self.db.directory), failures))
 
     @ignore(
-        ["optics", "CALab", "danfysikMps8000", "EPICS_V4", "EdwardsNextTurbo"],
+        ["optics", "CALab", "danfysikMps8000", "EPICS_V4"],
         "Vendor-supplied DBs"
     )
     @ignore(["ether_ip", "seq"], "Vendor-supplied DBs")
