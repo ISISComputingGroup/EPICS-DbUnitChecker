@@ -1,12 +1,23 @@
 
 install:
-	@echo Nothing to be done for lsicorr as pure python
+	@echo Nothing to be done for dbunitchecker as pure python
+	
+ifdef OS
+   RM = del \Q
+   FixPath = $(subst /,\,$1)
+else
+   ifeq ($(shell uname), Linux)
+      RM = rm -f
+      FixPath = $1
+   endif
+endif
+
 
 clean:
-	-del *.pyc *.pyd *.pyo
+	$(RM) *.pyc *.pyd *.pyo
 
 .DEFAULT:
-	@echo Nothing to be done for lsicorr as pure python
+	@echo Nothing to be done for dbunitchecker as pure python
 
 .PHONY:
 	runtests
