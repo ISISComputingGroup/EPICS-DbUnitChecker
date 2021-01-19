@@ -67,6 +67,7 @@ class TestPVUnits(unittest.TestCase):
         "zfmagfld_cdaq_data.db",
         "zfmagfld_cdaq_data.template",
         "zfmagfld_axes.db",
+        "zfmagfld_extra_axis.db",
     ], "Mutually exclusive guards prevent this from ever happening")
     @ignore(["optics", "danfysikMps8000"], "Vendor-supplied DBs")
     @ignore(
