@@ -25,7 +25,7 @@ class TestPVUnits(unittest.TestCase):
         self.db = db
 
     @ignore(
-        ["superlogics.db", "lakeshore336.db", "lakeshore340.db", "motor.db"],
+        ["superlogics.db", "lakeshore336.db", "Lakeshore340.db", "motor.db"],
         "Historical failures have not been addressed"
     )
     @ignore(["EPICS_V4"], "Vendor-supplied DBs")
