@@ -25,7 +25,7 @@ class TestPVUnits(unittest.TestCase):
         self.db = db
 
     @ignore(
-        ["superlogics.db", "lakeshore336.db", "Lakeshore340.db", "motor.db"],
+        ["superlogics.db", "lakeshore336.db", "motor.db"],
         "Historical failures have not been addressed"
     )
     @ignore(["EPICS_V4"], "Vendor-supplied DBs")
@@ -63,6 +63,7 @@ class TestPVUnits(unittest.TestCase):
         "tpgx6x.template",
         "tpg36x.db",
         "tpg26x.db",
+        "Lakeshore340.db",
         "zfmagfld_axes.template",
         "zfmagfld_cdaq_data.db",
         "zfmagfld_cdaq_data.template",
